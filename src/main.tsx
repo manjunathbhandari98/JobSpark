@@ -11,6 +11,5 @@ createRoot(
     <StrictMode>
       <App />
     </StrictMode>
-    ,
   </BrowserRouter>
 );

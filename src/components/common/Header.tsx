@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Logo from "../../assets/Logo";
 import { useState } from "react";
 import UserButton from "./UserButton";
@@ -11,9 +11,11 @@ const Header = () => {
     "EMPLOYEE" | "EMPLOYER"
   >("EMPLOYEE");
   return (
-    <div className="w-full flex h-22 text-white justify-between p-5 items-center">
+    <div className="w-full flex h-22 text-white justify-between p-5 items-center bg-[#040611]">
       <div>
-        <Logo />
+        <Link to="/">
+          <Logo />
+        </Link>
       </div>
       {/* Header options */}
       <NavLinks role={role} />
