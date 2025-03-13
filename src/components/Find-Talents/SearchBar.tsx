@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { dropdownData } from "../../data/JobsData";
-import MultiInput from "./MultiInput";
 import {
   Divider,
   RangeSlider,
 } from "@mantine/core";
+import MultiInput from "../Find-Jobs/MultiInput";
+import { searchFields } from "../../data/TalentData";
 
 const SearchBar = () => {
   const [value, setValue] = useState<
     [number, number]
-  >([1, 100]);
+  >([0, 50]);
   return (
     <div className="flex flex-col w-full">
       {/* Top thin gray line */}
@@ -20,10 +21,10 @@ const SearchBar = () => {
         {/* Search Input */}
 
         {/* Filter Options */}
-        {dropdownData.map((option, index) => (
+        {searchFields.map((option, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 w-1/5 justify-between mx-2"
+            className="flex items-center gap-3 w-1/4 justify-between mx-2"
           >
             <div className="text-white">
               <MultiInput {...option} />
@@ -34,11 +35,11 @@ const SearchBar = () => {
             />
           </div>
         ))}
-        <div className="w-1/5 px-2 [&_.mantine-Slider-label]:translate-y-10">
+        <div className="w-1/4 px-2 [&_.mantine-Slider-label]:translate-y-10">
           <div className="flex text-sm justify-between py-2">
-            <div>Salary</div>
+            <div>Experience(Year)</div>
             <div>
-              ₹{value[0]} LPA - ₹{value[1]} LPA
+              {value[0]}-{value[1]}
             </div>
           </div>
           <RangeSlider

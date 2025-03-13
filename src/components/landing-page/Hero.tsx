@@ -68,7 +68,7 @@ const Hero = () => {
             <div className="text-sm flex gap-2 items-center">
               <div className="google bg-gray-900 p-2 rounded-lg">
                 <img
-                  src={Google}
+                  src="/Icons/Google.png"
                   alt="google"
                   height={20}
                   width={20}

@@ -9,7 +9,7 @@ import NavLinks from "./NavLinks";
 const Header = () => {
   const [role, setRole] = useState<
     "EMPLOYEE" | "EMPLOYER"
-  >("EMPLOYEE");
+  >("EMPLOYER");
   return (
     <div className="w-full flex h-22 text-white justify-between p-5 items-center bg-[#040611]">
       <div>

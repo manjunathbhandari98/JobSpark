@@ -7,15 +7,6 @@ import {
   PillsInput,
   useCombobox,
 } from "@mantine/core";
-import { Search } from "lucide-react";
-
-const groceries = [
-  "🍎 Apples",
-  "🍌 Bananas",
-  "🥦 Broccoli",
-  "🥕 Carrots",
-  "🍫 Chocolate",
-];
 
 const MultiInput = (props: any) => {
   const combobox = useCombobox({
@@ -35,7 +26,6 @@ const MultiInput = (props: any) => {
 
   useEffect(() => {
     setData(props.options);
-    console.log(props.options);
   }, []);
 
   const exactOptionMatch = data.some(
