@@ -3,13 +3,13 @@ import Logo from "../../assets/Logo";
 import { useState } from "react";
 import UserButton from "./UserButton";
 import { Bell } from "lucide-react";
-import { Indicator } from "@mantine/core";
+import { Button, Indicator } from "@mantine/core";
 import NavLinks from "./NavLinks";
 
 const Header = () => {
   const [role, setRole] = useState<
     "EMPLOYEE" | "EMPLOYER"
-  >("EMPLOYER");
+  >("EMPLOYEE");
   return (
     <div className="w-full flex h-22 text-white justify-between p-5 items-center bg-[#040611]">
       <div>
@@ -19,6 +19,19 @@ const Header = () => {
       </div>
       {/* Header options */}
       <NavLinks role={role} />
+      {/* switch - delete later */}
+      <Button
+        onClick={() => {
+          if (role === "EMPLOYEE") {
+            setRole("EMPLOYER");
+          } else {
+            setRole("EMPLOYEE");
+          }
+        }}
+      >
+        Switch
+      </Button>
+
       {/* Profile */}
       <div className="flex gap-7 items-center">
         <Indicator

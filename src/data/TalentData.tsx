@@ -131,14 +131,14 @@ const talents = [
   {
     name: "Ethan Hunt",
     role: "Data Scientist",
-    company: "IBM",
+    company: "Google",
     topSkills: [
       "Python",
       "R",
       "Machine Learning",
     ],
     about:
-      "As a Data Scientist at IBM, I leverage my skills in Python, R, and machine learning to analyze complex datasets and generate actionable insights. My work involves building predictive models and data-driven solutions to support strategic decision-making and business growth. I am committed to exploring innovative techniques and methodologies to enhance data analysis and drive meaningful outcomes. My goal is to turn data into valuable information that can help organizations solve problems and seize opportunities.",
+      "As a Data Scientist at Google, I leverage my skills in Python, R, and machine learning to analyze complex datasets and generate actionable insights. My work involves building predictive models and data-driven solutions to support strategic decision-making and business growth. I am committed to exploring innovative techniques and methodologies to enhance data analysis and drive meaningful outcomes. My goal is to turn data into valuable information that can help organizations solve problems and seize opportunities.",
     expectedCtc: "₹55 - 70LPA",
     location: "Austin, United States",
     image: "avatar",

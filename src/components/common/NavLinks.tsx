@@ -31,7 +31,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
           },
           {
             label: "Manage Jobs",
-            url: "/posted-jobs",
+            url: "/manage-jobs",
           },
           {
             label: "Job Applications",

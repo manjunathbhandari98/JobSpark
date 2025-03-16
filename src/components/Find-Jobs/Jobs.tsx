@@ -1,6 +1,7 @@
 import JobCard from "./JobCard";
 import Filter from "./Filter.tsx";
 import { X } from "lucide-react";
+import { jobList } from "../../data/JobsData.tsx";
 
 const Jobs = () => {
   return (
@@ -18,8 +19,15 @@ const Jobs = () => {
           <Filter />
         </div>
       </div>
-      <div className="py-4 mt-5">
-        <JobCard />
+      <div className="py-4 mt-5 grid grid-cols-4 gap-4">
+        {jobList.map(
+          (data: any, index: number) => (
+            <JobCard
+              key={index}
+              {...data}
+            />
+          )
+        )}
       </div>
     </div>
   );

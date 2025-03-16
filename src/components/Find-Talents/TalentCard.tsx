@@ -1,12 +1,20 @@
 import {
   Bookmark,
+  Calendar,
   Dot,
   MapPin,
 } from "lucide-react";
-import { Divider } from "@mantine/core";
+import { Button, Divider, Modal } from "@mantine/core";
 import { Link } from "react-router-dom";
+import { useDisclosure } from "@mantine/hooks";
+import { DateInput } from "@mantine/dates";
+import { useState } from "react";
 
 const TalentCard = (data: any) => {
+  const [opened, { open, close }] =
+    useDisclosure(false);
+     const [value, setValue] =
+       useState<Date | null>(null);
   return (
     <div className="gap-4">
       <div className="bg-gray-900 rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500">
@@ -79,20 +87,55 @@ const TalentCard = (data: any) => {
 
         {/* Buttons */}
         <div className="px-4 my-3 flex gap-3 [&>*]:w-1/2 [&>*]:py-2 [&>*]:rounded-lg [&>*]:cursor-pointer [&>*]:font-bold [&>*]:text-green-500 [&>*]:text-center">
-          <div className="border border-green-500">
-            <Link to="/talent-profile">
-              <button className="cursor-pointer">
-                Profile
-              </button>
+          <Link to="/talent-profile">
+            <Button
+              color="greenTheme.5"
+              variant="outline"
+              fullWidth
+            >
+              Profile
+            </Button>
+          </Link>
+          {data.manage ? (
+              <Button
+                color="greenTheme.5"
+                variant="light"
+                fullWidth
+                rightSection={
+                  <Calendar size={18} />
+                }
+              >
+                Schedule
+              </Button>
+            
+          ) : (
+            <Link to="/message">
+              <Button
+                color="greenTheme.5"
+                variant="light"
+                fullWidth
+              >
+                Message
+              </Button>
             </Link>
-          </div>
-          <div className="bg-green-500/8">
-            <button className="cursor-pointer">
-              Message
-            </button>
-          </div>
+          )}
         </div>
       </div>
+      <Modal
+        opened={opened}
+        onClose={close}
+        title="Schedule Date"
+      >
+        <div>
+          <DateInput
+          value={value}
+          onChange={setValue}
+          label="Schedule Date"
+          placeholder="Enter Date"
+        />
+        </div>
+        
+      </Modal>
     </div>
   );
 };
