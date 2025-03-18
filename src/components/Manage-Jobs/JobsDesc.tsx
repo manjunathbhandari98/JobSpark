@@ -57,23 +57,39 @@ const applicantsOverview = () => {
          </Tabs.Panel>
          <Tabs.Panel value="applicants">
            <div className="py-4 mt-5 grid grid-cols-2 gap-6 ">
-             {talents
-               
-               .map(
-                 (data, index) =>
-                   index < 4 && (
-                     <div
-                       key={index}
-                       className=""
-                     >
-                       <TalentCard {...data} manage/>
-                     </div>
-                   )
-               )}
+             {talents.map(
+               (data, index) =>
+                 index < 4 && (
+                   <div
+                     key={index}
+                     className=""
+                   >
+                     <TalentCard
+                       {...data}
+                       manage
+                     />
+                   </div>
+                 )
+             )}
            </div>
          </Tabs.Panel>
          <Tabs.Panel value="invited">
-           invited
+           <div className="py-4 mt-5 grid grid-cols-2 gap-6 ">
+             {talents.map(
+               (data, index) =>
+                 index < 4 && (
+                   <div
+                     key={index}
+                     className=""
+                   >
+                     <TalentCard
+                       {...data}
+                       invite
+                     />
+                   </div>
+                 )
+             )}
+           </div>
          </Tabs.Panel>
          <Tabs.Panel value="offered">
            Offered

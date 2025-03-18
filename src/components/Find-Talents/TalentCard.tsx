@@ -5,16 +5,19 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button, Divider, Modal } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { DateInput } from "@mantine/dates";
-import { useState } from "react";
+import { DateInput, PickerControl, TimeInput } from "@mantine/dates";
+import { useRef, useState } from "react";
+import dayjs from "dayjs";
 
 const TalentCard = (data: any) => {
   const [opened, { open, close }] =
     useDisclosure(false);
      const [value, setValue] =
        useState<Date | null>(null);
+       const ref = useRef<HTMLInputElement>(null);
+       const navigate = useNavigate();
   return (
     <div className="gap-4">
       <div className="bg-gray-900 rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500">
@@ -68,18 +71,24 @@ const TalentCard = (data: any) => {
         />
 
         {/* Salary & location */}
-        <div className="flex justify-between items-center">
-          <div className="text-xl font-semibold">
-            Exc: {data.expectedCtc}
+        {data.invite ? (
+          <div className="flex gap-2 items-center">
+            <Calendar size={18} />
+            Interview : 12, August 2025 10:30 AM
           </div>
-          <div className="flex gap-2">
-            <MapPin size={18} />
-            <div className="text-sm">
-              {data.location.split(",")[0]}
+        ) : (
+          <div className="flex justify-between items-center">
+            <div className="text-xl font-semibold">
+              Exc: {data.expectedCtc}
+            </div>
+            <div className="flex gap-2">
+              <MapPin size={18} />
+              <div className="text-sm">
+                {data.location.split(",")[0]}
+              </div>
             </div>
           </div>
-        </div>
-
+        )}
         <Divider
           size="xs"
           className="my-2"
@@ -87,37 +96,60 @@ const TalentCard = (data: any) => {
 
         {/* Buttons */}
         <div className="px-4 my-3 flex gap-3 [&>*]:w-1/2 [&>*]:py-2 [&>*]:rounded-lg [&>*]:cursor-pointer [&>*]:font-bold [&>*]:text-green-500 [&>*]:text-center">
-          <Link to="/talent-profile">
-            <Button
-              color="greenTheme.5"
-              variant="outline"
-              fullWidth
-            >
-              Profile
-            </Button>
-          </Link>
-          {data.manage ? (
+          {data.invite ? (
+            <>
+            {/* Buttons for invited talents */}
               <Button
                 color="greenTheme.5"
-                variant="light"
+                variant="outline"
                 fullWidth
-                rightSection={
-                  <Calendar size={18} />
+              >
+                Accept
+              </Button>
+              <Button
+                color="red.7"
+                variant="outline"
+                fullWidth
+              >
+                Reject
+              </Button>
+            </>
+          ) : (
+            // Buttons For Applicants
+            <>
+              <Button
+                color="greenTheme.5"
+                variant="outline"
+                fullWidth
+                onClick={() =>
+                  navigate("/talent-profile")
                 }
               >
-                Schedule
+                Profile
               </Button>
-            
-          ) : (
-            <Link to="/message">
-              <Button
-                color="greenTheme.5"
-                variant="light"
-                fullWidth
-              >
-                Message
-              </Button>
-            </Link>
+              {data.manage ? (
+                <Button
+                  color="greenTheme.5"
+                  variant="light"
+                  fullWidth
+                  rightSection={
+                    <Calendar size={18} />
+                  }
+                >
+                  Schedule
+                </Button>
+              ) : (
+                // Button for Find Talents
+                  <Button
+                    color="greenTheme.5"
+                    variant="light"
+                    fullWidth
+                    onClick={() => navigate('/message')}
+                  >
+                    Message
+                  </Button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -128,13 +160,30 @@ const TalentCard = (data: any) => {
       >
         <div>
           <DateInput
-          value={value}
-          onChange={setValue}
-          label="Schedule Date"
-          placeholder="Enter Date"
-        />
+            minDate={new Date()}
+            maxDate={dayjs(new Date())
+              .add(1, "month")
+              .toDate()}
+            value={value}
+            onChange={setValue}
+            label="Schedule Date"
+            placeholder="Enter Date"
+          />
+          <TimeInput
+            label="Time"
+            ref={ref}
+            onClick={() =>
+              ref.current?.showPicker()
+            }
+          />
+          <Button
+            color="greenTheme.5"
+            variant="light"
+            fullWidth
+          >
+            Schedule
+          </Button>
         </div>
-        
       </Modal>
     </div>
   );

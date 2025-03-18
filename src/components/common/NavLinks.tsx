@@ -13,7 +13,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
           { label: "Find Jobs", url: "/jobs" },
           {
             label: "Job Applications",
-            url: "/job-history",
+            url: "/applications",
           },
           {
             label: "Saved Jobs",
@@ -35,7 +35,7 @@ const NavLinks: React.FC<NavLinksProps> = ({
           },
           {
             label: "Job Applications",
-            url: "/applications",
+            url: "/job-history",
           },
         ];
 

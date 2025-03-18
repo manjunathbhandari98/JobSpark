@@ -57,7 +57,9 @@ const JobDesc = (props:any) => {
                 </Button>
               </Link>
             </>
-          ) : (
+          ) 
+          :
+          (
             <>
               <Link to="/job-apply">
                 <Button

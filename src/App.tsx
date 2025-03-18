@@ -18,6 +18,11 @@ import JobDescPage from "./pages/JobDescPage.tsx";
 import ApplyJobPage from "./pages/ApplyJobPage.tsx";
 import CompanyPage from "./pages/CompanyPage.tsx";
 import ManageJobsPage from "./pages/ManageJobsPage.tsx";
+import JobApplicationsPage from "./pages/JobApplicationsPage.tsx";
+import Auth from "./pages/Auth.tsx";
+import { useLocalStorage } from "@mantine/hooks";
+import ProfilePage from "./pages/ProfilePage.tsx";
+import SavedJobsPage from "./pages/SavedJobsPage.tsx";
 
 const theme = createTheme({
   primaryColor: "greenTheme",
@@ -64,6 +69,7 @@ const theme = createTheme({
 });
 
 const App = () => {
+  
   return (
     <MantineProvider
       defaultColorScheme="dark"
@@ -108,6 +114,23 @@ const App = () => {
             <Route
               path="/manage-jobs"
               element={<ManageJobsPage />}
+            />
+            <Route
+              path="/applications"
+              element={<JobApplicationsPage />}
+            />
+            <Route
+              path="/auth"
+              element={<Auth />}
+            />
+            <Route
+              path="/profile"
+              element={<ProfilePage />}
+            />
+
+            <Route
+            path="/saved-jobs"
+            element={<SavedJobsPage/>}
             />
           </Routes>
           <Footer />
