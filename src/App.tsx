@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import {
   createTheme,
   MantineProvider,
@@ -6,23 +7,62 @@ import "./App.css";
 import "@mantine/core/styles.css";
 import "@mantine/tiptap/styles.css";
 import "@mantine/dates/styles.css";
-import HomePage from "./pages/HomePage";
-import { Route, Routes } from "react-router-dom";
-import FindJobs from "./pages/FindJobs";
+import "@mantine/notifications/styles.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
-import FindTalent from "./pages/FindTalent";
-import TalentProfile from "./pages/TalentProfile.tsx";
-import PostJobPage from "./pages/PostJobPage.tsx";
-import JobDescPage from "./pages/JobDescPage.tsx";
-import ApplyJobPage from "./pages/ApplyJobPage.tsx";
-import CompanyPage from "./pages/CompanyPage.tsx";
-import ManageJobsPage from "./pages/ManageJobsPage.tsx";
-import JobApplicationsPage from "./pages/JobApplicationsPage.tsx";
-import Auth from "./pages/Auth.tsx";
-import { useLocalStorage } from "@mantine/hooks";
-import ProfilePage from "./pages/ProfilePage.tsx";
-import SavedJobsPage from "./pages/SavedJobsPage.tsx";
+import { Provider } from "react-redux";
+import { Notifications } from "@mantine/notifications";
+import Store from "./App/Store";
+import AppRoutes from "./routes/index.tsx";
+
+// Lazy load pages
+const HomePage = lazy(
+  () => import("./pages/HomePage")
+);
+const FindJobs = lazy(
+  () => import("./pages/FindJobs")
+);
+const FindTalent = lazy(
+  () => import("./pages/FindTalent")
+);
+const TalentProfile = lazy(
+  () => import("./pages/TalentProfile.tsx")
+);
+const PostJobPage = lazy(
+  () => import("./pages/PostJobPage.tsx")
+);
+const JobDescPage = lazy(
+  () => import("./pages/JobDescPage.tsx")
+);
+const ApplyJobPage = lazy(
+  () => import("./pages/ApplyJobPage.tsx")
+);
+const CompanyPage = lazy(
+  () => import("./pages/CompanyPage.tsx")
+);
+const ManageJobsPage = lazy(
+  () => import("./pages/ManageJobsPage.tsx")
+);
+const JobApplicationsPage = lazy(
+  () => import("./pages/JobApplicationsPage.tsx")
+);
+const Auth = lazy(
+  () => import("./pages/Auth.tsx")
+);
+const ProfilePage = lazy(
+  () => import("./pages/ProfilePage.tsx")
+);
+const SavedJobsPage = lazy(
+  () => import("./pages/SavedJobsPage.tsx")
+);
+
+// Loader component (better UX)
+const Loader = () => (
+  <div className="text-center py-5">
+    Loading...
+  </div>
+);
 
 const theme = createTheme({
   primaryColor: "greenTheme",
@@ -39,7 +79,7 @@ const theme = createTheme({
       "#040611",
       "#040611",
       "#040611",
-    ], // ✅ Dark theme requires at least 10 shades
+    ],
     lightTheme: [
       "#ffffff",
       "#ffffff",
@@ -51,92 +91,43 @@ const theme = createTheme({
       "#ffffff",
       "#ffffff",
       "#ffffff",
-    ], // ✅ Light theme requires at least 10 shades
+    ],
     greenTheme: [
-      "#dcfce7", // green-100
-      "#bbf7d0", // green-200
-      "#86efac", // green-300
-      "#4ade80", // green-400
-      "#22c55e", // green-500
-      "#16a34a", // green-600
-      "#15803d", // green-700
-      "#166534", // green-800
-      "#14532d", // green-900
-      "#052e16", // green-950 (extra dark)
+      "#dcfce7",
+      "#bbf7d0",
+      "#86efac",
+      "#4ade80",
+      "#22c55e",
+      "#16a34a",
+      "#15803d",
+      "#166534",
+      "#14532d",
+      "#052e16",
     ],
   },
   fontFamily: "Poppins,sans-serif",
 });
 
 const App = () => {
-  
   return (
-    <MantineProvider
-      defaultColorScheme="dark"
-      theme={theme}
-    >
-      <div className="min-h-screen text-white dark:bg-[#040611] light:bg-white">
-        <div className="relative">
-          <Header />
-          <Routes>
-            <Route
-              path="/jobs"
-              element={<FindJobs />}
-            />
-            <Route
-              path="*"
-              element={<HomePage />}
-            />
-            <Route
-              path="/talent"
-              element={<FindTalent />}
-            />
-            <Route
-              path="/talent-profile"
-              element={<TalentProfile />}
-            />
-            <Route
-              path="/post-job"
-              element={<PostJobPage />}
-            />
-            <Route
-              path="/job"
-              element={<JobDescPage />}
-            />
-            <Route
-              path="/job-apply"
-              element={<ApplyJobPage />}
-            />
-            <Route
-              path="/company"
-              element={<CompanyPage />}
-            />
-            <Route
-              path="/manage-jobs"
-              element={<ManageJobsPage />}
-            />
-            <Route
-              path="/applications"
-              element={<JobApplicationsPage />}
-            />
-            <Route
-              path="/auth"
-              element={<Auth />}
-            />
-            <Route
-              path="/profile"
-              element={<ProfilePage />}
-            />
+    <Provider store={Store}>
+      <MantineProvider
+        defaultColorScheme="dark"
+        theme={theme}
+      >
+        <Notifications />
 
-            <Route
-            path="/saved-jobs"
-            element={<SavedJobsPage/>}
-            />
-          </Routes>
-          <Footer />
+        <div className="min-h-screen text-white dark:bg-[#040611] light:bg-white">
+          <BrowserRouter>
+            <div className="relative">
+              <Header />
+              <AppRoutes />
+              <Footer />
+            </div>
+          </BrowserRouter>
         </div>
-      </div>
-    </MantineProvider>
+      </MantineProvider>
+    </Provider>
   );
 };
 

@@ -21,47 +21,40 @@ const NotificationBar: React.FC<NotificationBarProps> = ({
   title = "All good!",
   duration = 3000,
   type,
-  onClose, 
-  ...props
+  onClose,
 }) => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true); // Default visible
 
   useEffect(() => {
-    setVisible(true);
     const timer = setTimeout(() => {
       setVisible(false);
-      if (onClose) onClose(); // Call parent function when notification disappears
+      if (onClose) onClose();
     }, duration);
 
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
+  if (!visible) return null; // Prevent unmounting too fast
+
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{
-            ease: "easeInOut",
-            duration: 0.4,
-          }}
-          className="fixed top-5 right-5 z-50"
-        >
-          <Notification
-            icon={type === 'success' ? <IconCheck size={20} /> : <XIcon size={20}/>}
-            color={`${type === 'success' ? 'teal' : 'red'}`}
-            title={title}
-            className="shadow-lg rounded-lg"
-            {...props}
-          >
-            {message}
-          </Notification>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ ease: "easeInOut", duration: 0.4 }}
+      className="fixed top-5 right-5 z-50"
+    >
+      <Notification
+        icon={type === 'success' ? <IconCheck size={20} /> : <XIcon size={20} />}
+        color={type === 'success' ? 'teal' : 'red'}
+        title={title}
+        className="shadow-lg rounded-lg"
+      >
+        {message}
+      </Notification>
+    </motion.div>
   );
 };
+
 
 export default NotificationBar;

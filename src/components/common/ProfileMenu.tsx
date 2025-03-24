@@ -5,13 +5,6 @@ import {
   IconLogout2,
   IconMessageCircle,
   IconMoon,
-  IconMoonStars,
-  IconPhoto,
-  IconSearch,
-  IconSettings,
-  IconSun,
-  IconTrash,
-  IconUser,
   IconUserCircle,
 } from "@tabler/icons-react";
 import {
@@ -22,105 +15,76 @@ import {
   UnstyledButton,
   Switch,
 } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
-interface UserButtonProps
-  extends React.ComponentPropsWithoutRef<"button"> {
-  image: string;
+import { useNavigate } from "react-router-dom";0   
+
+import {useDispatch} from 'react-redux'
+import {removeUser} from '../../Slices/UserSlice'
+
+interface UserProps {
+  image?: string; // Optional image
   name: string;
   email: string;
+}
+
+interface UserButtonProps extends UserProps {
   icon?: React.ReactNode;
 }
 
 const UserButton = forwardRef<
   HTMLButtonElement,
   UserButtonProps
->(
-  (
-    {
-      image,
-      name,
-      email,
-      icon,
-      ...others
-    }: UserButtonProps,
-    ref
-  ) => (
-    <UnstyledButton
-      ref={ref}
-      style={{
-        padding: "var(--mantine-spacing-md)",
-        color: "var(--mantine-color-text)",
-        borderRadius: "var(--mantine-radius-sm)",
-      }}
-      {...others}
-    >
-      <Group>
-        <Avatar
-          src={image}
-          radius="xl"
-        />
+>(({ image, name, email, icon, ...others }, ref) => (
+  <UnstyledButton
+    ref={ref}
+    style={{
+      padding: "var(--mantine-spacing-md)",
+      color: "var(--mantine-color-text)",
+      borderRadius: "var(--mantine-radius-sm)",
+    }}
+    {...others}
+  >
+    <Group>
+      <Avatar
+        src={image || "https://via.placeholder.com/40"} // Default avatar if none is provided
+        radius="xl"
+      />
 
-        <div style={{ flex: 1 }}>
-          <Text
-            size="sm"
-            fw={500}
-          >
-            {name}
-          </Text>
+      <div style={{ flex: 1 }}>
+        <Text size="sm" fw={500}>
+          {name || "Guest User"}
+        </Text>
 
-          <Text
-            c="dimmed"
-            size="xs"
-          >
-            {email}
-          </Text>
-        </div>
+        <Text c="dimmed" size="xs">
+          {email || "No email available"}
+        </Text>
+      </div>
 
-        {icon || <IconChevronRight size={16} />}
-      </Group>
-    </UnstyledButton>
-  )
-);
+      {icon || <IconChevronRight size={16} />}
+    </Group>
+  </UnstyledButton>
+));
 
-const ProfileMenu = () => {
+const ProfileMenu = ({ image, name, email }: UserProps) => {
   const [checked, setChecked] = useState(false);
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const onLogout = () =>{
+    dispatch(removeUser());
+  }
+
   return (
-    <Menu
-      opened={opened}
-      onChange={setOpened}
-    >
+    <Menu opened={opened} onChange={setOpened}>
       <Menu.Target>
-        <UserButton
-          image="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
-          name="Harriette Spoonlicker"
-          email="hspoonlicker@outlook.com"
-        />
+        <UserButton image={image} name={name} email={email} />
       </Menu.Target>
-      <Menu.Dropdown
-        onChange={() => setOpened(true)}
-      >
-        <Menu.Item
-          leftSection={
-            <IconUserCircle size={20} />
-          }
-          onClick={() => navigate("/profile")}
-        >
+      <Menu.Dropdown onChange={() => setOpened(true)}>
+        <Menu.Item leftSection={<IconUserCircle size={20} />} onClick={() => navigate("/profile")}>
           Profile
         </Menu.Item>
-        <Menu.Item
-          leftSection={
-            <IconMessageCircle size={18} />
-          }
-        >
-          Messages
-        </Menu.Item>
-        <Menu.Item
-          leftSection={<IconFileCv size={18} />}
-        >
-          Resume
-        </Menu.Item>
+        <Menu.Item leftSection={<IconMessageCircle size={18} />}>Messages</Menu.Item>
+        <Menu.Item leftSection={<IconFileCv size={18} />}>Resume</Menu.Item>
 
         <Menu.Item
           leftSection={<IconMoon size={18} />}
@@ -128,11 +92,7 @@ const ProfileMenu = () => {
             <Switch
               size="sm"
               checked={checked}
-              onChange={(event) => {
-                setChecked(
-                  event.currentTarget.checked
-                );
-              }}
+              onChange={(event) => setChecked(event.currentTarget.checked)}
             />
           }
         >
@@ -140,10 +100,7 @@ const ProfileMenu = () => {
         </Menu.Item>
 
         <Menu.Divider />
-        <Menu.Item
-          color="red"
-          leftSection={<IconLogout2 size={18} />}
-        >
+        <Menu.Item color="red" onClick={onLogout} leftSection={<IconLogout2 size={18} />}>
           Logout
         </Menu.Item>
       </Menu.Dropdown>

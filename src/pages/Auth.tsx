@@ -3,6 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo";
 import Signup from "../components/Auth/Signup";
 import Login from "../components/Auth/Login";
+import ForgotPassword from "../components/Auth/ForgotPassword";
+import VerifyOTP from "../components/Auth/VerfiyOTP";
+import ResetPassword from "../components/Auth/ResetPassword";
+
 
 const Auth = () => {
     const navigate = useNavigate();
@@ -16,43 +20,58 @@ const Auth = () => {
       {/* 🔹 Fixed Home Button - Always visible */}
       <div className="fixed top-5 left-5 z-50">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="bg-green-500/10 cursor-pointer flex items-center py-2 px-4 gap-2 rounded-lg shadow-md hover:bg-green-500/20 transition"
         >
           <ArrowLeft />
           Home
         </button>
       </div>
-
       {/* 🔹 Auth Content */}
-      <div
-        className={`w-[100vw] h-[100vh] flex [&>*]:flex-shrink-0 transition-transform duration-1000 ease-in-out ${
-          mode === "signup"
-            ? "-translate-x-1/2"
-            : ""
-        }`}
-      >
-        <div className="w-1/2 h-full flex items-center justify-center">
-          <Login />
+      {mode === "forgot" ? (
+        <div className="w-[100vw] h-[100vh] flex  items-center">
+          <ForgotPassword />
         </div>
+      ) : mode === "verify-otp" ? (
+        <div className="w-[100vw] h-[100vh] flex  items-center">
+          <VerifyOTP />
+        </div>
+      ) : mode === 'reset-password' ? (
+        <div className = 'w-[100vw] h-[100vh] flex items-center'>
+          <ResetPassword/>
+          </div>
+      )
+       :
+      (
         <div
-          className={`w-1/2 h-full bg-gray-800 flex flex-col items-center justify-center text-white transition-all duration-1000 ease-in-out ${
+          className={`w-[100vw] h-[100vh] flex [&>*]:flex-shrink-0 transition-transform duration-1000 ease-in-out ${
             mode === "signup"
-              ? "rounded-r-[200px]"
-              : "rounded-l-[200px]"
+              ? "-translate-x-1/2"
+              : ""
           }`}
         >
-          <div className="w-fit h-fit">
-            <Logo size="extra-larger" />
+          <div className="w-1/2 h-full flex items-center justify-center">
+            <Login />
           </div>
-          <div className="text-xl font-semibold">
-            Discover Your Career Spark
+          <div
+            className={`w-1/2 h-full bg-gray-800 flex flex-col items-center justify-center text-white transition-all duration-1000 ease-in-out ${
+              mode === "signup"
+                ? "rounded-r-[200px]"
+                : "rounded-l-[200px]"
+            }`}
+          >
+            <div className="w-fit h-fit">
+              <Logo size="extra-larger" />
+            </div>
+            <div className="text-xl font-semibold">
+              Discover Your Career Spark
+            </div>
+          </div>
+          <div className="w-1/2 h-full flex items-center justify-center">
+            <Signup />
           </div>
         </div>
-        <div className="w-1/2 h-full flex items-center justify-center">
-          <Signup />
-        </div>
-      </div>
+      )}
     </div>
   );
 };
