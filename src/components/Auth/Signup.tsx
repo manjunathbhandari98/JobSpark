@@ -1,19 +1,29 @@
-import { Button, Group, Loader, PasswordInput, Radio, TextInput } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Loader,
+  PasswordInput,
+  Radio,
+  TextInput,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconAt } from "@tabler/icons-react";
 import { Lock } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom"; // ✅ Import useNavigate
 import { useState } from "react";
 import { registerUser } from "../../Services/UserService";
 import NotificationBar from "../common/Notification"; // ✅ Import NotificationBar
-import { signupValidation } from "../../Validations/FormValidation"; 
-import { notifications } from '@mantine/notifications';
+import { signupValidation } from "../../Validations/FormValidation";
+import { notifications } from "@mantine/notifications";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [visible, { toggle }] = useDisclosure(false);
+  const [visible, { toggle }] =
+    useDisclosure(false);
   const [loading, setLoading] = useState(false); // ✅ Added loading state
-
 
   // State for form data
   const [data, setData] = useState({
@@ -26,93 +36,120 @@ const Signup = () => {
 
   // State for form errors
   const [formError, setFormError] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   // Handle input changes with validation
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
-    setData(prev => ({ ...prev, [name]: value }));
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-    let errorMessage = signupValidation(name, value);
+    let errorMessage = signupValidation(
+      name,
+      value
+    );
 
     // If password changes, revalidate confirmPassword
     if (name === "password") {
-      setFormError(prev => ({
+      setFormError((prev) => ({
         ...prev,
-        password: errorMessage, 
-        confirmPassword: data.confirmPassword && data.confirmPassword !== value ? "Passwords do not match!" : ""
+        password: errorMessage,
+        confirmPassword:
+          data.confirmPassword &&
+          data.confirmPassword !== value
+            ? "Passwords do not match!"
+            : "",
       }));
     } else if (name === "confirmPassword") {
-      setFormError(prev => ({
+      setFormError((prev) => ({
         ...prev,
-        confirmPassword: value !== data.password ? "Passwords do not match!" : ""
+        confirmPassword:
+          value !== data.password
+            ? "Passwords do not match!"
+            : "",
       }));
     } else {
-      setFormError(prev => ({
+      setFormError((prev) => ({
         ...prev,
-        [name]: errorMessage, 
+        [name]: errorMessage,
       }));
     }
   };
-
+  
   // Handle signup with final validation
   const handleSignup = async () => {
     const newErrors = {
       name: signupValidation("name", data.name),
-      email: signupValidation("email", data.email),
-      password: signupValidation("password", data.password),
-      confirmPassword: data.password !== data.confirmPassword ? "Passwords do not match!" : "",
+      email: signupValidation(
+        "email",
+        data.email
+      ),
+      password: signupValidation(
+        "password",
+        data.password
+      ),
+      confirmPassword:
+        data.password !== data.confirmPassword
+          ? "Passwords do not match!"
+          : "",
     };
 
     setFormError(newErrors);
 
     // If any error exists, stop the function
-    if (Object.values(newErrors).some(error => error)) {
+    if (
+      Object.values(newErrors).some(
+        (error) => error
+      )
+    ) {
       return;
     }
 
     try {
       setLoading(true); // ✅ Show loader
+
+      // ✅ Ensure we send only required fields (NO profileId)
       await registerUser({
         name: data.name,
         email: data.email,
         password: data.password,
-        accountType: data.accountType,
+        accountType: data.accountType, // Keep it if your backend requires it
       });
 
       setLoading(false); // ✅ Hide loader
-    
-
 
       // ✅ Delay navigation to show the notification
       setTimeout(() => {
-          notifications.show({
-  title: "Account Created! 🎉",
-  message: `Hey ${data.name}, welcome to JobSpark! Start exploring now.`,
-  color: "greenTheme.5",
-});
+        notifications.show({
+          title: "Account Created! 🎉",
+          message: `Hey ${data.name}, welcome to JobSpark! Start exploring now.`,
+          color: "greenTheme.5",
+        });
         navigate("/");
       }, 2500);
-
     } catch (error: any) {
       setLoading(false); // ✅ Hide loader in case of error
       notifications.show({
-  title: "Signup Failed",
-  message: error.errorMessage,
-  color: "red.7",
-});
-
+        title: "Signup Failed",
+        message: error.errorMessage,
+        color: "red.7",
+      });
     }
   };
 
   return (
     <div className="px-20 w-full flex flex-col gap-3">
-     
-      <div className="text-xl font-medium">Create Account</div>
+      <div className="text-xl font-medium">
+        Create Account
+      </div>
       <div className="form flex flex-col gap-4">
         <TextInput
           label="Full Name"
@@ -169,18 +206,39 @@ const Signup = () => {
           }
           withAsterisk
         >
-          <Group    className="[&>*]:px-6 [&>*]:py-4 [&>*]:border [&>*]:rounded-lg [&>*]:border-green-500 [&>*]:hover:bg-gray-800/50"
-         >
-            <Radio value="APPLICANT" label="Employee" />
-            <Radio value="EMPLOYER" label="Employer" />
+          <Group className="[&>*]:px-6 [&>*]:py-4 [&>*]:border [&>*]:rounded-lg [&>*]:border-green-500 [&>*]:hover:bg-gray-800/50">
+            <Radio
+              value="APPLICANT"
+              label="Employee"
+            />
+            <Radio
+              value="EMPLOYER"
+              label="Employer"
+            />
           </Group>
         </Radio.Group>
-        <Button color="greenTheme.5" className="!py-2 !text-black" onClick={handleSignup} disabled={loading}>
-          {loading ? <Loader color="blue" type="dots" /> : "Sign Up"} {/* ✅ Show loader */}
+        <Button
+          color="greenTheme.5"
+          className="!py-2 !text-black"
+          onClick={handleSignup}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader
+              color="blue"
+              type="dots"
+            />
+          ) : (
+            "Sign Up"
+          )}{" "}
+          {/* ✅ Show loader */}
         </Button>
         <div className="flex gap-3 justify-center">
           Have an Account?{" "}
-          <Link to="?mode=login" className="text-green-500">
+          <Link
+            to="?mode=login"
+            className="text-green-500"
+          >
             Login
           </Link>
         </div>

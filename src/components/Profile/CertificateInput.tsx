@@ -1,67 +1,124 @@
-import { useState } from "react";
-import SelectInput from "./SelectInput";
+import { useForm } from "@mantine/form";
 import { Button, TextInput } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import { changeProfile } from "../../Slices/ProfileSlice";
+import { notifications } from "@mantine/notifications";
+import SelectInput from "./SelectInput";
 import { companies } from "../../data/Data";
-import { MonthPickerInput } from "@mantine/dates";
-import { IconCancel, IconCircleCheck, IconTrash } from "@tabler/icons-react";
 
-const CertificateInput = (props: any) => {
-  const [certificate, setCertificate] =
-    useState<string>();
-  const [issuer, setIssuer] = useState();
-  const [issueDate, setIssueDate] =
-    useState<Date | null>();
-  const [id, setId] = useState<string>();
+const CertificateInput = ({
+  initialValues,
+  onCancel,
+}: any) => {
+  const dispatch = useDispatch();
+  const profile = useSelector(
+    (state: any) => state.profile
+  );
+
+  const form = useForm({
+    initialValues: {
+      name: initialValues?.name || "",
+      issuer: initialValues?.issuer || "",
+      issueDate: initialValues?.issueDate
+        ? new Date(initialValues.issueDate)
+        : null,
+      certificateId:
+        initialValues?.certificateId || "",
+    },
+  });
+
+  const handleSave = (values: any) => {
+    const updatedCertificate = {
+      ...values,
+      issueDate: values.issueDate
+        ? values.issueDate.toISOString()
+        : null,
+    };
+
+    let updatedCertificates = [
+      ...(profile?.certificates || []),
+    ];
+
+    if (initialValues) {
+      const index = updatedCertificates.findIndex(
+        (cert) => cert === initialValues
+      );
+      if (index !== -1) {
+        updatedCertificates[index] =
+          updatedCertificate;
+      }
+    } else {
+      updatedCertificates.push(
+        updatedCertificate
+      );
+    }
+
+    dispatch(
+      changeProfile({
+        ...profile,
+        certificates: updatedCertificates,
+      })
+    );
+
+    console.log(updatedCertificates)
+    notifications.show({
+      title: "Success",
+      message: "Certificate Updated Successfully",
+      color: "greenTheme.5",
+    });
+
+    onCancel();
+  };
 
   return (
     <div className="py-5">
       <div className="text-3xl font-semibold py-3">
-        {props.addCerti ? "Add" : "Edit"}{" "}
+        {initialValues ? "Edit" : "Add"}{" "}
         Certificate
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex flex-col gap-5">
         <TextInput
-          value={certificate}
-          onChange={(e) =>
-            setCertificate(e.target.value)
-          }
-          label="Certificate"
+          label="Certificate Name" // Change label to match backend
           withAsterisk
-          placeholder="Add Certificate Name"
+          placeholder="Enter Certificate Name"
+          name="name"
+          {...form.getInputProps("name")} // Keep input field name as 'name'
         />
         <SelectInput
-          label="Company"
+          label="Issuer"
           options={companies}
-          value={issuer}
-          onChange={() => setIssuer(issuer)}
+          form={form}
+          name="issuer"
         />
-        <MonthPickerInput
+        <DatePickerInput
           withAsterisk
           label="Issue Date"
           maxDate={new Date()}
-          value={issueDate}
-          onChange={setIssueDate || null}
+          {...form.getInputProps("issueDate")}
         />
         <TextInput
+          label="Certificate ID"
           withAsterisk
-          label="ID"
           placeholder="Enter ID"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
+          {...form.getInputProps("certificateId")}
         />
         <div className="flex gap-5 mt-4">
           <Button
-            leftSection={<IconCircleCheck />}
-            variant="outline"
-            onClick={() => props.setEdit(false)}
+            variant="filled"
+            onClick={() =>
+              handleSave(form.values)
+            }
           >
             Save
           </Button>
           <Button
-            leftSection={<IconCancel />}
-            variant=""
+            variant="outline"
             color="red.8"
-            onClick={() => props.setEdit(false)}
+            onClick={onCancel}
           >
             Discard
           </Button>

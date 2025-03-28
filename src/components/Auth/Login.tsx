@@ -81,6 +81,7 @@ const Login = () => {
 
       const updatedUserData = {
         email: data.email,
+        password:data.password,
         name,
         id,
         accountType,

@@ -45,7 +45,7 @@ const UserButton = forwardRef<
   >
     <Group>
       <Avatar
-        src={image || "https://via.placeholder.com/40"} // Default avatar if none is provided
+        src={image || "/avatar.png"} // Default avatar if none is provided
         radius="xl"
       />
 

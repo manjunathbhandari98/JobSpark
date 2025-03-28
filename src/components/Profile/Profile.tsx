@@ -1,311 +1,156 @@
 import {
-  ActionIcon,
-  Button,
+  FileInput,
   Divider,
-  Select,
-  TagsInput,
-  Textarea,
-  TextInput,
 } from "@mantine/core";
-import Experience from "./Experience";
+import { IconPencil } from "@tabler/icons-react";
+import { useEffect } from "react";
 import {
-  Briefcase,
-  Dot,
-  MapPin,
-  Save,
-} from "lucide-react";
-import Certification from "./Certification";
-import { IconPencil, IconPlus } from "@tabler/icons-react";
-import { useState } from "react";
-import SelectInput from "./SelectInput";
-import fields from "../../data/Profile";
-import ExpInput from "./ExpInput";
-import CertificateInput from "./CertificateInput";
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import { getProfile } from "../../Services/ProfileService";
+import {
+  changeProfile,
+  setProfile,
+} from "../../Slices/ProfileSlice";
+import ProfileInfo from "./ProfileInfo";
+import ProfileAbout from "./ProfileAbout";
+import ProfileSkills from "./ProfileSkills";
+import ProfileExperience from "./ProfileExperience";
+import ProfileCertificate from "./ProfileCertificate";
+import { notifications } from "@mantine/notifications";
 
-const Profile = (props: any) => {
-  const [edit, setEdit] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+const Profile = () => {
+  const profile = useSelector(
+    (state: any) => state.profile
+  );
+  const dispatch = useDispatch();
+  const user = useSelector(
+    (state: any) => state.user
+  );
 
-  const [about, setAbout] = useState(props.about);
-  const [skills, setSkills] = useState([...props.skills])
-  const [experience, setExperience] = useState(props.experience)
-  const [addExp, setAddExp] = useState(false);
-  const [addCerti, setAddCerti] = useState(false);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getProfile(
+          user.id
+        );
+        dispatch(setProfile(response.data));
+      } catch (error) {
+        console.error(
+          "Error fetching profile:",
+          error
+        );
+      }
+    };
+    fetchProfile();
+  }, [dispatch, user.id]);
 
-  const handleEdit = (index: any) => {
-    const newEdit = [...edit];
-    newEdit[index] = !newEdit[index];
-    setEdit(newEdit);
-    console.log(edit);
+  const handleFileChange = async (image: any) => {
+    const img: any = await getBase64(image);
+    const base64Data = img.split(",")[1];
+    const updatedImg = {
+      ...profile,
+      picture: base64Data,
+    };
+    dispatch(changeProfile(updatedImg));
+    notifications.show({
+      title: "Profile Picture Updated",
+      message:
+        "Your profile picture has been updated successfully",
+      color: "greenTheme.5",
+      icon: true,
+    });
   };
 
-  const select = fields;
+  const getBase64 = (file: any) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () =>
+        resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const getImageSource = () => {
+    if (profile.picture) {
+      try {
+        const base64String = `data:image/jpeg;base64,${profile.picture}`;
+        return base64String;
+      } catch (error) {
+        console.error(
+          "Error generating image source:",
+          error
+        );
+        return "/avatar.png";
+      }
+    }
+    return "/avatar.png";
+  };
 
   return (
     <div className="my-10 w-4/5 mx-auto">
-      {/* Profile */}
-      <div className="mb-16">
-        {/* banner */}
-        <div className="relative mb-28">
+      <div className="mb-1">
+        <div className="relative mb-20">
           <img
             src="/Profile/banner.jpg"
             alt="banner"
             className="rounded-t-3xl"
           />
-          {/* profile image */}
-          <div className="top-16 left-5 absolute p-2 dark:bg-[#040611] light:bg-white rounded-full">
-            <img
-              src="/avatar.png"
-              alt=""
-              className="h-45 rounded-full"
-            />
-          </div>
-        </div>
-        {/* profile info */}
-        <div className="flex justify-between items-center">
-          {edit[0] ? (
-            <div className="flex flex-col gap-5 ">
-              <div className="flex gap-10 [&>*]:w-1/2">
-                <SelectInput {...select[0]} />
-                <SelectInput {...select[1]} />
-              </div>
-              <SelectInput {...select[2]} />
-            </div>
-          ) : (
-            <div className="[&>*]:flex [&>*]:gap-2 space-y-2">
-              <div className="font-bold text-3xl">
-                {props.name}
-              </div>
-              <div className="text-xl">
-                <Briefcase />
-                <div>{props.role}</div>
-                <Dot />
-                <div>{props.company}</div>
-              </div>
-              <div className="text-xl">
-                <MapPin />
-                <div>{props.location}</div>
-              </div>
-              <div className="text-xl">
-                <Briefcase />
-                <div>Experience : 2 years</div>
-              </div>
-            </div>
-          )}
-
-          {/* Edit Button */}
-
-          <ActionIcon
-            variant="subtle"
-            size="lg"
-            onClick={() => handleEdit(0)}
-          >
-            {!edit[0] ? (
-              <IconPencil size={45} />
-            ) : (
-              <Save size={45} />
-            )}
-          </ActionIcon>
-        </div>
-
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-
-        {/* about */}
-        <div className="pt-5 space-y-5">
-          <div className="font-bold text-2xl flex justify-between">
-            About
-            <ActionIcon
-              variant="subtle"
-              size="lg"
-              onClick={() => handleEdit(1)}
-            >
-              {!edit[1] ? (
-                <IconPencil size={45} />
-              ) : (
-                <Save size={45} />
-              )}
-            </ActionIcon>
-          </div>
-          <div>
-            {edit[1] ? (
-              <>
-                <Textarea
-                  withAsterisk
-                  label="About"
-                  autosize
-                  minRows={3}
-                  value={about}
-                  onChange={(e) =>
-                    setAbout(e.target.value)
-                  }
+          <div className="top-22 left-5 absolute p-2 dark:bg-[#040611] light:bg-white rounded-full">
+            <div className="relative w-44 h-44 e-profile">
+              <div className="e-custom-wrapper w-full h-full rounded-full overflow-hidden shadow-md">
+                <img
+                  src={getImageSource()}
+                  alt="Profile Avatar"
+                  id="custom-img"
                 />
-              </>
-            ) : (
-              about
-            )}
-          </div>
-        </div>
-
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-
-        {/* skills */}
-        <div className="pt-5 space-y-5">
-          <div className="font-bold text-2xl flex justify-between">
-            Skills
-            <ActionIcon
-              variant="subtle"
-              size="lg"
-              onClick={() => handleEdit(2)}
-            >
-              {!edit[2] ? (
-                <IconPencil size={45} />
-              ) : (
-                <Save size={45} />
-              )}
-            </ActionIcon>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {edit[2] ? (
-              <TagsInput
-                withAsterisk
-                label="Skills"
-                value={skills}
-                onChange={setSkills}
-                clearable
-                acceptValueOnBlur
-              />
-            ) : (
-              skills.map(
-                (
-                  skill: string,
-                  index: number
-                ) => (
-                  <div key={index}>
-                    <div className="bg-green-500/8 px-2 py-1 rounded-2xl">
-                      {skill}
-                    </div>
-                  </div>
-                )
-              )
-            )}
-          </div>
-        </div>
-
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-
-        {/* Experience */}
-        <div>
-          <div className="pt-5 space-y-5">
-            <div className="font-bold text-2xl flex justify-between">
-              Experience
-              <div className="flex gap-3">
-                <ActionIcon
-                  variant="subtle"
-                  size="lg"
-                  onClick={() => setAddExp(true)}
-                >
-                  <IconPlus size={45} />
-                </ActionIcon>
-                <ActionIcon
-                  variant="subtle"
-                  size="lg"
-                  onClick={() => handleEdit(3)}
-                >
-                  {!edit[3] ? (
-                    <IconPencil size={45} />
-                  ) : (
-                    <Save size={45} />
-                  )}
-                </ActionIcon>
               </div>
-            </div>
-            {experience.map(
-              (data: any, index: number) => (
-                <div key={index}>
-                  <Experience
-                    {...data}
-                    edit={edit[3]}
-                  />
-                </div>
-              )
-            )}
-            {addExp && (
-              <ExpInput
-                addExp
-                setEdit={setAddExp}
+              <FileInput
+                id="img-upload"
+                className="hidden"
+                accept="image/*" // Accept all image types
+                onChange={handleFileChange}
               />
-            )}
+              <span
+                id="custom-edit"
+                className="e-custom-edit absolute bottom-2 right-2 w-10 h-10 bg-green-500 border-[3px] border-black rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-green-600 transition"
+                onClick={() =>
+                  document
+                    .getElementById("img-upload")
+                    ?.click()
+                }
+              >
+                <IconPencil
+                  size={22}
+                  color="black"
+                />
+              </span>
+            </div>
           </div>
         </div>
-
+        <ProfileInfo />
         <Divider
           size="xs"
           className="mt-10"
         />
-
-        {/* Certificate */}
-        <div>
-          <div className="pt-5 space-y-5">
-            <div className="font-bold text-2xl flex justify-between">
-              Certificate
-              <div className="flex gap-4">
-                <ActionIcon
-                  variant="subtle"
-                  size="lg"
-                  onClick={() =>
-                    setAddCerti(true)
-                  }
-                >
-                  <IconPlus size={45} />
-                </ActionIcon>
-                <ActionIcon
-                  variant="subtle"
-                  size="lg"
-                  onClick={() => handleEdit(4)}
-                >
-                  {!edit[4] ? (
-                    <IconPencil size={45} />
-                  ) : (
-                    <Save size={45} />
-                  )}
-                </ActionIcon>
-              </div>
-            </div>
-            {props.certifications?.map(
-              (data: any, index: number) => (
-                <div key={index}>
-                  <Certification
-                    {...data}
-                    edit={edit[4]}
-                    addCerti={addCerti}
-                    setEdit={() => handleEdit(4)}
-                  />
-                </div>
-              )
-            )}
-
-            {addCerti && (
-              <CertificateInput
-                addCerti
-                setEdit={setAddCerti}
-              />
-            )}
-          </div>
-        </div>
+        <ProfileAbout />
+        <Divider
+          size="xs"
+          className="mt-10"
+        />
+        <ProfileSkills />
+        <Divider
+          size="xs"
+          className="mt-10"
+        />
+        <ProfileExperience />
+        <Divider
+          size="xs"
+          className="mt-10"
+        />
+        <ProfileCertificate />
       </div>
     </div>
   );

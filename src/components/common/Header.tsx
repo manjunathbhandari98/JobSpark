@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import Logo from "../../assets/Logo";
 import { useState,useEffect } from "react";
-import UserButton from "./UserButton";
+// import UserButton from "./UserButton";
 import { Bell } from "lucide-react";
 import { Button, Indicator } from "@mantine/core";
 import NavLinks from "./NavLinks";
@@ -14,7 +14,7 @@ const Header = () => {
   >("EMPLOYEE");
   const location = useLocation();
   const user = useSelector((state:any)=>state.user)
-
+  const profile = useSelector((state:any) => state.profile)
   
   return (
     location.pathname !== "/auth" && (
@@ -52,7 +52,7 @@ const Header = () => {
             />
           </Indicator>
           {user ? (
-            <ProfileMenu image={user.image} name={user.name} 
+            <ProfileMenu image={`data:image/jpeg;base64,${profile.picture}`} name={user.name} 
         email={user.email}/>
           ) : (
             <Link to="/auth?mode=login">
