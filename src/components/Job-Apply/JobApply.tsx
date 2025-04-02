@@ -2,26 +2,63 @@ import {
   Button,
   Divider,
   FileInput,
+  Loader,
   LoadingOverlay,
-  Notification,
-  NumberInput,
   Textarea,
   TextInput,
+  NumberInput,
 } from "@mantine/core";
 import { Edit, Upload } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IconCheck } from "@tabler/icons-react";
-import Jobs from './../Find-Jobs/Jobs';
+import { useSelector } from "react-redux";
+import { getRelativeTime } from "../../Utils/dateUtils";
+import {
+  isNotEmpty,
+  useForm,
+} from "@mantine/form";
+import { notifications } from "@mantine/notifications";
+import { jobApply } from "../../Services/JobService";
 
 const JobApply = () => {
   const [preview, setPreview] = useState(false);
-  const [submit, setSubmit] =
-    useState(false);
-    // const[sec,setSec] = useState(5)
-    const navigate = useNavigate();
+  const [submit, setSubmit] = useState(false);
+  const selectedJob = useSelector(
+    (state: any) => state.job.selectedJob
+  );
+  const navigate = useNavigate();
+  const user = useSelector(
+    (state: any) => state.user
+  );
+
+  // Check if the job is already saved by matching the job ID with saved jobs
+  const isJobSaved = user.savedJobs?.includes(
+    selectedJob?.id
+  );
+
+  const form = useForm({
+    mode: "controlled",
+    initialValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: "",
+      website: "",
+      resume: null,
+      coverLetter: "",
+    },
+    validate: {
+      name: isNotEmpty("Name Cannot be Empty"),
+      email: isNotEmpty("Email Cannot be Empty"),
+      phone: isNotEmpty("Phone cannot be Empty"),
+      resume: isNotEmpty(
+        "Resume Cannot be Empty"
+      ),
+    },
+  });
 
   const handlePreview = () => {
+    form.validate();
+    if (!form.isValid()) return;
     setPreview(!preview);
     window.scrollTo({
       top: 0,
@@ -29,188 +66,207 @@ const JobApply = () => {
     });
   };
 
-  const handleSubmit = () => {
-    setSubmit(true);
-    let x = 5;
-    setInterval(() =>{
-      x--;
-      if (x === 0){
-        navigate('/jobs')
+  const getBase64 = (file: File) => {
+    return new Promise<string>(
+      (resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () =>
+          resolve(
+            reader.result
+              ?.toString()
+              .split(",")[1] || ""
+          );
+        reader.onerror = (error) => reject(error);
       }
-    },1000)
-   
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedJob?.id) {
+      notifications.show({
+        title: "Error",
+        message: "Job ID is missing",
+        color: "red.6",
+      });
+      return;
+    }
+
+    setSubmit(true);
+    try {
+      let resumeBase64 = "";
+      if (form.values.resume) {
+        resumeBase64 = await getBase64(
+          form.values.resume
+        );
+      }
+
+      const formData = {
+        ...form.values,
+        applicantId: user.id,
+        resume: resumeBase64,
+      };
+      await jobApply(selectedJob.id, formData);
+      notifications.show({
+        title: "Success",
+        message: "Job Applied Successfully",
+        color: "greenTheme.5",
+      });
+      navigate("/applications");
+    } catch (error: any) {
+      notifications.show({
+        title: "Failed",
+        message:
+          error.response.data.errorMessage ||
+          "Something went wrong",
+        color: "red.6",
+      });
+    } finally {
+      setSubmit(false);
+    }
   };
 
   return (
-    <>
-      <div className="py-4 flex flex-col gap-5 w-2/3 mx-auto">
-        <LoadingOverlay
-          visible={submit}
-          zIndex={1000}
-          overlayProps={{ radius: "sm", blur: 2 }}
-          loaderProps={{
-            color: "green",
-            type: "bars",
-          }}
-        />
-        {/* Company Info */}
+    <div className="py-4 flex flex-col gap-5 w-2/3 mx-auto">
+      <LoadingOverlay
+        visible={submit}
+        zIndex={1000}
+        overlayProps={{ radius: "sm", blur: 2 }}
+        loaderProps={{
+          color: "green",
+          type: "bars",
+        }}
+      />
+
+      {/* Company Info */}
+      {selectedJob && (
         <div className="flex gap-3 items-center">
           <div className="bg-gray-700 rounded-xl p-2">
             <img
-              src="/Icons/Google.png"
+              src={`/Icons/${String(
+                selectedJob.company || "default"
+              )}.png`}
               alt="logo"
               className="h-14"
             />
           </div>
           <div className="flex flex-col gap-1">
             <div className="font-medium text-xl">
-              Data Analyst
+              {typeof selectedJob.jobTitle ===
+              "string"
+                ? selectedJob.jobTitle
+                : "Job Title Unavailable"}
             </div>
             <div className="text-sm">
-              Google • 1 month ago • 100
+              {selectedJob.company ||
+                "Company Name Unavailable"}{" "}
+              •{" "}
+              Posted{' '}{getRelativeTime(
+                selectedJob.postTime
+              )}{" "}
+              •{" "}
+              {Array.isArray(
+                selectedJob.applicants
+              )
+                ? selectedJob.applicants.length
+                : 0}{" "}
               Applicants
             </div>
           </div>
         </div>
+      )}
 
-        <Divider size="xs" />
+      <Divider size="xs" />
 
-        {/* Application Form */}
-        <div className="py-4 flex flex-col gap-4">
-          <div className="flex justify-between">
-            <div className="font-semibold text-xl">
-              Submit Your Application
-            </div>
-            {preview && (
-              <button
-                className="cursor-pointer"
-                onClick={handlePreview}
-              >
-                <Edit />
-              </button>
-            )}
+      {/* Application Form */}
+      <div className="py-4 flex flex-col gap-4">
+        <div className="flex justify-between">
+          <div className="font-semibold text-xl">
+            Submit Your Application
           </div>
-
-          <div
-            className={`${
-              preview ? "flex flex-col" : "flex"
-            } gap-3 [&>*]:w-1/2`}
-          >
-            <TextInput
-              readOnly={preview}
-              variant={
-                preview ? "unstyled" : "default"
-              }
-              withAsterisk
-              label="Full Name"
-              placeholder="Enter Your Full Name"
-            />
-            <TextInput
-              readOnly={preview}
-              variant={
-                preview ? "unstyled" : "default"
-              }
-              withAsterisk
-              label="Email"
-              placeholder="Enter Your Email"
-            />
-          </div>
-
-          <div
-            className={`${
-              preview ? "flex flex-col" : "flex"
-            } gap-3 [&>*]:w-1/2`}
-          >
-            <NumberInput
-              readOnly={preview}
-              variant={
-                preview ? "unstyled" : "default"
-              }
-              withAsterisk
-              label="Phone Number"
-              placeholder="Enter Your Phone Number"
-              hideControls
-              clampBehavior="strict"
-              min={0}
-              max={9999999999}
-            />
-            <TextInput
-              readOnly={preview}
-              variant={
-                preview ? "unstyled" : "default"
-              }
-              label="Personal Website"
-              placeholder="Enter Your Personal Website Url"
-            />
-          </div>
-
-          <FileInput
-            readOnly={preview}
-            variant={
-              preview ? "unstyled" : "default"
-            }
-            withAsterisk
-            label="Resume/CV"
-            placeholder="Upload Your Resume/CV"
-            leftSection={<Upload size={18} />}
-            accept=".pdf, .doc, .docx"
-          />
-
-          <Textarea
-            readOnly={preview}
-            variant={
-              preview ? "unstyled" : "default"
-            }
-            label="Cover Letter"
-            placeholder="Type something about yourself"
-            autosize
-            minRows={3}
-          />
-
-          <Button
-            variant={`${!preview && "outline"}`}
-            size="md"
-            color="greenTheme.4"
-            onClick={
-              preview
-                ? handleSubmit
-                : handlePreview
-            }
-          >
-            {preview ? "Submit" : "Preview"}
-          </Button>
+          {preview && (
+            <button
+              className="cursor-pointer"
+              onClick={handlePreview}
+            >
+              <Edit />
+            </button>
+          )}
         </div>
-      </div>
 
-      <Notification
-        className={`!border-green-500 z-1001 border -translate-y-20 !fixed top-0 right-5 transition duration-1000 ease-in-out
-        ${
-          submit
-            ? "translate-y-0"
-            : "-translate-y-20"
-        }
-        `}
-        icon={<IconCheck size={20} />}
-        color="teal"
-        title="Application Submited"
-        mt="md"
-        withCloseButton={false}
-      >
-        Redirecting to Jobs
-      </Notification>
-
-      {/* {showNotif && (
-        <NotificationBar
-          title="Success!"
-          type="success"
-          message="Your action was successful."
-          onClose={() => {
-            setShowNotif(false);
-            navigate("/jobs");
-          }} // Set state to false when notification disappears
+        <TextInput
+          withAsterisk
+          label="Full Name"
+          placeholder="Enter Your Full Name"
+          readOnly={preview}
+          {...form.getInputProps("name")}
         />
-      )} */}
-    </>
+        <TextInput
+          withAsterisk
+          label="Email"
+          placeholder="Enter Your Email"
+          readOnly={preview}
+          {...form.getInputProps("email")}
+        />
+        <NumberInput
+          withAsterisk
+          label="Phone Number"
+          placeholder="Enter Your Phone Number"
+          hideControls
+          min={0}
+          max={9999999999}
+          readOnly={preview}
+          {...form.getInputProps("phone")}
+        />
+        <TextInput
+          label="Personal Website"
+          placeholder="Enter Your Personal Website Url"
+          readOnly={preview}
+          {...form.getInputProps("website")}
+        />
+        <FileInput
+          withAsterisk
+          label="Resume/CV"
+          placeholder="Upload Your Resume/CV"
+          leftSection={<Upload size={18} />}
+          accept=".pdf, .doc, .docx"
+          readOnly={preview}
+          {...form.getInputProps("resume")}
+        />
+        <Textarea
+          label="Cover Letter"
+          placeholder="Type something about yourself"
+          autosize
+          minRows={3}
+          readOnly={preview}
+          {...form.getInputProps("coverLetter")}
+        />
+
+        <Button
+          variant={
+            !preview ? "outline" : "filled"
+          }
+          size="md"
+          color="greenTheme.4"
+          onClick={
+            preview ? handleSubmit : handlePreview
+          }
+        >
+          {preview ? (
+            submit ? (
+              <Loader
+                color="blue"
+                type="dots"
+              />
+            ) : (
+              "Submit"
+            )
+          ) : (
+            "Preview"
+          )}
+        </Button>
+      </div>
+    </div>
   );
 };
 

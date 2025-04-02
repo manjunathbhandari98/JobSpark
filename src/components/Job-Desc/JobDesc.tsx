@@ -3,16 +3,49 @@ import {
   Button,
   Divider,
 } from "@mantine/core";
-import { Bookmark } from "lucide-react";
-import {
-  card,
-  desc,
-  skills,
-} from "../../data/JobDescData"; 
+import { Bookmark, BookmarkCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { getRelativeTime } from "../../Utils/dateUtils";
+import { useDispatch, useSelector } from "react-redux";
+import { removeJob } from "../../Slices/JobSlice";
+import ConfirmationPopup from "../../Utils/ConfirmationPopup";
+import { useEffect, useState } from "react";
+
+import {     
+  IconBriefcase,
+  IconMapPin,
+  IconPremiumRights,
+  IconRecharging,
+} from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { changeProfile } from "../../Slices/ProfileSlice";
+import useSavedJob from "../../hooks/useSavedJobs";
 
 const JobDesc = (props:any) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [confirmation, setConfirmation] =
+    useState(false);
+  const user = useSelector(
+    (state: any) => state.user
+  );
+
+  const handleDelete = () => {
+    dispatch(removeJob(props.id));
+    setConfirmation(false);
+  };
+
+  const handleCancel = () => {
+    setConfirmation(false);
+  };
+
+  const { toggleSavedJob, savedJobs } =
+      useSavedJob();
+
+  const selectedJob = useSelector(
+    (state: any) => state.job.selectedJob
+  );
+
   return (
     <div className="w-2/3 py-2 px-3">
       {/* role,company,apply */}
@@ -20,17 +53,23 @@ const JobDesc = (props:any) => {
         <div className="flex gap-3 items-center">
           <div className="bg-gray-700 rounded-xl p-2">
             <img
-              src="/Icons/Google.png"
+              src={`/Icons/${selectedJob.company}.png`}
               alt="logo"
               className="h-14"
             />
           </div>
           <div className="flex flex-col gap-1">
             <div className="font-medium text-xl">
-              Data Analyst
+              {selectedJob.jobTitle}
             </div>
             <div className="text-sm">
-              Google &bull; 1 month ago &bull; 100
+              {selectedJob.company} &bull;{" "}
+              Posted{' '}{getRelativeTime(
+                selectedJob.postTime
+              )}{" "}
+              &bull;{" "}
+              {selectedJob?.applicants?.length ??
+                0}{" "}
               Applicants
             </div>
           </div>
@@ -38,7 +77,7 @@ const JobDesc = (props:any) => {
         <div className="flex flex-col items-center gap-2">
           {props.edit ? (
             <>
-              <Link to="/job-apply">
+              <Link to="/edit-job">
                 <Button
                   size="sm"
                   variant="light"
@@ -47,33 +86,52 @@ const JobDesc = (props:any) => {
                   Edit
                 </Button>
               </Link>
-              <Link to="/job-apply">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  color="red.5"
-                >
-                  Delete
-                </Button>
-              </Link>
+              <Button
+                size="sm"
+                variant="outline"
+                color="red.5"
+                onClick={() =>
+                  setConfirmation(true)
+                }
+              >
+                Delete
+              </Button>
             </>
-          ) 
-          :
-          (
+          ) : (
             <>
               <Link to="/job-apply">
                 <Button
                   size="sm"
                   variant="light"
                   color="greenTheme.5"
+                  disabled={
+                    selectedJob?.applicants?.find(
+                      (applicant: any) =>
+                        applicant.applicantId ===
+                        user.id
+                    )
+                      ? true
+                      : false
+                  }
                 >
-                  Apply
+                  {selectedJob?.applicants?.find(
+                    (applicant: any) =>
+                      applicant.applicantId ===
+                      user.id
+                  )
+                    ? "Applied"
+                    : "Apply"}
                 </Button>
               </Link>
-
-              <Bookmark />
+              { savedJobs?.includes(
+              selectedJob.id
+            ) ? (
+              <BookmarkCheck onClick={() => toggleSavedJob(selectedJob.id)} className="text-green-500 cursor-pointer" />
+            ) : (
+              <Bookmark onClick={() => toggleSavedJob(selectedJob.id)} className="cursor-pointer" />
+            )}
             </>
-          )}
+          )} 
         </div>
       </div>
 
@@ -82,31 +140,87 @@ const JobDesc = (props:any) => {
 
       {/* location, experience, salary, jobtype */}
       <div className="flex justify-between my-6">
-        {card.map((data, index) => (
-          <div
-            key={index}
-            className="flex flex-col gap-2 items-center justify-center text-center"
+        {/* Location */}
+        <div className="flex flex-col gap-2 items-center justify-center text-center">
+          <ActionIcon
+            color="greenTheme.5"
+            className="!h-12 !w-12"
+            variant="light"
+            radius="xl"
+            aria-label="settings"
           >
-            <ActionIcon
-              color="greenTheme.5"
-              className="!h-12 !w-12"
-              variant="light"
-              radius="xl"
-              aria-label="settings"
-            >
-              <data.icon
-                className="w-4/5 h-4/5"
-                stroke={1.3}
-              />
-            </ActionIcon>
-            <div className="text-sm">
-              {data.name}
-            </div>
-            <div className="font-medium">
-              {data.value}
-            </div>
+            <IconMapPin
+              className="w-4/5 h-4/5"
+              stroke={1.3}
+            />
+          </ActionIcon>
+          <div className="text-sm">Location</div>
+          <div className="font-medium">
+            {selectedJob.location}
           </div>
-        ))}
+        </div>
+
+        {/* Experience */}
+        <div className="flex flex-col gap-2 items-center justify-center text-center">
+          <ActionIcon
+            color="greenTheme.5"
+            className="!h-12 !w-12"
+            variant="light"
+            radius="xl"
+            aria-label="settings"
+          >
+            <IconBriefcase
+              className="w-4/5 h-4/5"
+              stroke={1.3}
+            />
+          </ActionIcon>
+          <div className="text-sm">
+            Experience
+          </div>
+          <div className="font-medium">
+            {selectedJob.experience}
+          </div>
+        </div>
+
+        {/* Salary */}
+        <div className="flex flex-col gap-2 items-center justify-center text-center">
+          <ActionIcon
+            color="greenTheme.5"
+            className="!h-12 !w-12"
+            variant="light"
+            radius="xl"
+            aria-label="settings"
+          >
+            <IconPremiumRights
+              className="w-4/5 h-4/5"
+              stroke={1.3}
+            />
+          </ActionIcon>
+          <div className="text-sm">Salary</div>
+          <div className="font-medium">
+            {selectedJob.packageOffered}
+          </div>
+        </div>
+
+        {/* Job Type */}
+        <div className="flex flex-col gap-2 items-center justify-center text-center">
+          <ActionIcon
+            color="greenTheme.5"
+            className="!h-12 !w-12"
+            variant="light"
+            radius="xl"
+            aria-label="settings"
+          >
+            <IconRecharging
+              className="w-4/5 h-4/5"
+              stroke={1.3}
+            />
+          </ActionIcon>
+          <div className="text-sm">Job Type</div>
+          <div className="font-medium">
+            {selectedJob.jobType}
+          </div>
+        </div>
       </div>
 
       {/* Divider */}
@@ -118,14 +232,16 @@ const JobDesc = (props:any) => {
           Required Skill
         </div>
         <div className="flex flex-wrap gap-2">
-          {skills.map((skill, index) => (
-            <div
-              key={index}
-              className="bg-green-500/8 text-green-500 px-2 py-1 rounded-full"
-            >
-              {skill}
-            </div>
-          ))}
+          {selectedJob.skillsRequired?.map(
+            (skill: any, index: number) => (
+              <div
+                key={index}
+                className="bg-green-500/8 text-green-500 px-2 py-1 rounded-full"
+              >
+                {skill}
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -139,7 +255,7 @@ const JobDesc = (props:any) => {
         </div>
         <div
           dangerouslySetInnerHTML={{
-            __html: desc,
+            __html: selectedJob.description,
           }}
           className="space-y-4 text-gray-300 [&>h4]:text-lg [&>h4]:font-semibold [&>ul]:list-disc [&>ul]:pl-6 [&>p]:text-base"
         />
@@ -196,6 +312,15 @@ const JobDesc = (props:any) => {
           optio.
         </div>
       </div>
+      {confirmation && (
+        <ConfirmationPopup
+          question="Do you want to delete this Job?"
+          confirmText="Delete"
+          cancelText="Cancel"
+          onConfirm={handleDelete}
+          onCancel={handleCancel}
+        />
+      )}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+
 import {
   createTheme,
   MantineProvider,
@@ -8,61 +8,15 @@ import "@mantine/core/styles.css";
 import "@mantine/tiptap/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
 import { Provider } from "react-redux";
 import { Notifications } from "@mantine/notifications";
 import Store from "./App/Store";
 import AppRoutes from "./routes/index.tsx";
+ 
 
-// Lazy load pages
-const HomePage = lazy(
-  () => import("./pages/HomePage")
-);
-const FindJobs = lazy(
-  () => import("./pages/FindJobs")
-);
-const FindTalent = lazy(
-  () => import("./pages/FindTalent")
-);
-const TalentProfile = lazy(
-  () => import("./pages/TalentProfile.tsx")
-);
-const PostJobPage = lazy(
-  () => import("./pages/PostJobPage.tsx")
-);
-const JobDescPage = lazy(
-  () => import("./pages/JobDescPage.tsx")
-);
-const ApplyJobPage = lazy(
-  () => import("./pages/ApplyJobPage.tsx")
-);
-const CompanyPage = lazy(
-  () => import("./pages/CompanyPage.tsx")
-);
-const ManageJobsPage = lazy(
-  () => import("./pages/ManageJobsPage.tsx")
-);
-const JobApplicationsPage = lazy(
-  () => import("./pages/JobApplicationsPage.tsx")
-);
-const Auth = lazy(
-  () => import("./pages/Auth.tsx")
-);
-const ProfilePage = lazy(
-  () => import("./pages/ProfilePage.tsx")
-);
-const SavedJobsPage = lazy(
-  () => import("./pages/SavedJobsPage.tsx")
-);
-
-// Loader component (better UX)
-const Loader = () => (
-  <div className="text-center py-5">
-    Loading...
-  </div>
-);
 
 const theme = createTheme({
   primaryColor: "greenTheme",

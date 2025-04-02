@@ -1,8 +1,11 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import PrivateRoutes from "./PrivateRoutes";
 import PublicRoutes from "./PublicRoutes";
 import RoutePaths from "./RoutePath";
+import EditJob from "../components/Manage-Jobs/EditJob";
+import { Loader } from "@mantine/core";
+import LoadingScreen from '../Utils/LoadingScreen'
 
 // Lazy load pages
 const HomePage = lazy(
@@ -43,15 +46,10 @@ const SavedJobsPage = lazy(
   () => import("../pages/SavedJobsPage")
 );
 
-const Loader = () => (
-  <div className="text-center py-5">
-    Loading...
-  </div>
-);
 
 const AppRoutes = () => {
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense fallback={<LoadingScreen />}>
       <Routes>
         {/* Public Routes */}
         <Route element={<PublicRoutes />}>
@@ -76,10 +74,7 @@ const AppRoutes = () => {
             path={RoutePaths.JOB_DESC}
             element={<JobDescPage />}
           />
-          <Route
-            path={RoutePaths.JOB_APPLY}
-            element={<ApplyJobPage />}
-          />
+
           <Route
             path={RoutePaths.COMPANY}
             element={<CompanyPage />}
@@ -111,6 +106,14 @@ const AppRoutes = () => {
           <Route
             path={RoutePaths.SAVED_JOBS}
             element={<SavedJobsPage />}
+          />
+          <Route
+            path={RoutePaths.EDIT_JOB}
+            element={<EditJob />}
+          />
+          <Route
+            path={RoutePaths.JOB_APPLY}
+            element={<ApplyJobPage />}
           />
         </Route>
       </Routes>

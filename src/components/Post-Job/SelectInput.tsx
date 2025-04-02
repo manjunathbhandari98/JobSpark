@@ -6,9 +6,16 @@ import {
 } from "@mantine/core";
 
 const SelectInput = (props: any) => {
+  const {
+    form,
+    name,
+    label,
+    options,
+    placeholder,
+  } = props;
   useEffect(() => {
-    setData(props.options);
-  }, []);
+    setData(options);
+  }, [options]);
 
   const combobox = useCombobox({
     onDropdownClose: () =>
@@ -16,11 +23,9 @@ const SelectInput = (props: any) => {
   });
 
   const [data, setData] = useState<string[]>([]);
-
-  const [value, setValue] = useState<
-    string | null
-  >(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(
+    form.values[name] || ""
+  ); // Initialize with form value
 
   const exactOptionMatch = data.some(
     (item) => item === search
@@ -33,14 +38,16 @@ const SelectInput = (props: any) => {
           .includes(search.toLowerCase().trim())
       );
 
-  const options = filteredOptions.map((item) => (
-    <Combobox.Option
-      value={item}
-      key={item}
-    >
-      {item}
-    </Combobox.Option>
-  ));
+  const mappedOptions = filteredOptions.map(
+    (item) => (
+      <Combobox.Option
+        value={item}
+        key={item}
+      >
+        {item}
+      </Combobox.Option>
+    )
+  );
 
   return (
     <Combobox
@@ -52,19 +59,18 @@ const SelectInput = (props: any) => {
             ...current,
             search,
           ]);
-          setValue(search);
+          form.setFieldValue(name, search); // Update form value
         } else {
-          setValue(val);
+          form.setFieldValue(name, val); // Update form value
           setSearch(val);
         }
-
         combobox.closeDropdown();
       }}
     >
       <Combobox.Target>
         <InputBase
           withAsterisk
-          label={props.label}
+          label={label}
           rightSection={<Combobox.Chevron />}
           value={search}
           onChange={(event) => {
@@ -76,16 +82,16 @@ const SelectInput = (props: any) => {
           onFocus={() => combobox.openDropdown()}
           onBlur={() => {
             combobox.closeDropdown();
-            setSearch(value || "");
+            setSearch(form.values[name] || ""); // Use form value on blur
           }}
-          placeholder={props.placeholder}
+          placeholder={placeholder}
           rightSectionPointerEvents="none"
         />
       </Combobox.Target>
 
       <Combobox.Dropdown>
         <Combobox.Options>
-          {options}
+          {mappedOptions}
           {!exactOptionMatch &&
             search.trim().length > 0 && (
               <Combobox.Option value="$create">

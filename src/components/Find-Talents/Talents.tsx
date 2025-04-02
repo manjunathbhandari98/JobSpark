@@ -1,8 +1,24 @@
 import { Filter, X } from "lucide-react";
 import TalentCard from "./TalentCard";
-import { talents } from "../../data/TalentData";
+import {useEffect, useState} from 'react';
+import { getAllProfiles } from "../../Services/ProfileService";
+
 
 const Talents = () => {
+  const [profileList, setProfileList] = useState([]);
+  useEffect(()=>{
+    const fetchProfiles = async() =>{
+      try {
+        const response = await getAllProfiles();
+        setProfileList(response.data);
+        
+      } catch (error) {
+        throw error
+      }
+    }
+    fetchProfiles();
+  },[])
+
   return (
     <div className="p-4">
       <div className="flex justify-between">
@@ -19,7 +35,7 @@ const Talents = () => {
         </div>
       </div>
       <div className="py-4 mt-5 grid grid-cols-3 gap-4">
-        {talents.map(
+        {profileList.map(
           (data: any, index: number) => (
             <TalentCard
               key={index}

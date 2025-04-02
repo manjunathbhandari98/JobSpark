@@ -6,15 +6,41 @@ import { Bell } from "lucide-react";
 import { Button, Indicator } from "@mantine/core";
 import NavLinks from "./NavLinks";
 import ProfileMenu from "./ProfileMenu";
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
+import { setProfile } from "../../Slices/ProfileSlice";
+import { getProfile } from "../../Services/ProfileService";
 
 const Header = () => {
-  const [role, setRole] = useState<
-    "EMPLOYEE" | "EMPLOYER"
-  >("EMPLOYEE");
+  
   const location = useLocation();
   const user = useSelector((state:any)=>state.user)
   const profile = useSelector((state:any) => state.profile)
+  const dispatch = useDispatch();
+  const [profilePic, setProfilePic] = useState(profile?.picture);
+  const role = user?.accountType;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!profile.picture && user.id) {
+        try {
+          const response = await getProfile(
+            user.id
+          );
+          dispatch(setProfile(response.data));
+        } catch (error) {
+          console.error(
+            "Error fetching profile:",
+            error
+          );
+        }
+      }
+    };
+    fetchProfile();
+  }, []);
+
+useEffect(() => {
+  setProfilePic(profile?.picture);
+}, [profile?.picture]); // Re-renders when profile picture updates
   
   return (
     location.pathname !== "/auth" && (
@@ -27,18 +53,7 @@ const Header = () => {
         {/* Header options */}
         <NavLinks role={role} />
         {/* switch - delete later */}
-        <Button
-          onClick={() => {
-            if (role === "EMPLOYEE") {
-              setRole("EMPLOYER");
-            } else {
-              setRole("EMPLOYEE");
-            }
-          }}
-        >
-          Switch
-        </Button>
-
+        
         {/* Profile */}
         <div className="flex gap-7 items-center">
           <Indicator
@@ -52,8 +67,11 @@ const Header = () => {
             />
           </Indicator>
           {user ? (
-            <ProfileMenu image={`data:image/jpeg;base64,${profile.picture}`} name={user.name} 
-        email={user.email}/>
+            <ProfileMenu
+  image={profilePic ? `data:image/jpeg;base64,${profilePic}` : "/avatar.png"}
+  name={user.name}
+  email={user.email}
+/>
           ) : (
             <Link to="/auth?mode=login">
               <Button variant="light">

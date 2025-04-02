@@ -1,26 +1,28 @@
 import {Divider } from "@mantine/core";
-import { jobList } from "../data/JobsData";
-import Card from "../components/JobA-Applications/Card";
+import Card from "../components/Job-Applications/Card";
+import { useSelector } from "react-redux";
+import useSavedJob from "../hooks/useSavedJobs";
+
 
 const SavedJobsPage = () => {
+  const jobs = useSelector((state:any) => state.job.jobs);
+  const {savedJobs} = useSavedJob();
  return (
    <div className="py-5 px-5">
      <Divider size="xz" />
      <div className="py-4 mt-5 grid grid-cols-4 gap-6 ">
-       {jobList.map(
-         (data, index) =>
-           index < 2 && (
-             <div
-               key={index}
-               className=""
-             >
-               <Card
-                 {...data}
-                 saved
-               />
-             </div>
-           )
-       )}
+       {jobs
+         .filter((job: any) =>
+           savedJobs.includes(job.id)
+         ) // Show only saved jobs
+         .map((data: any, index: any) => (
+           <div key={index}>
+             <Card
+               {...data}
+               saved
+             />
+           </div>
+         ))}
      </div>
    </div>
  ); 

@@ -1,14 +1,14 @@
 import { NavLink } from "react-router-dom";
 
 interface NavLinksProps {
-  role: "EMPLOYEE" | "EMPLOYER";
+  role: "APPLICANT" | "EMPLOYER";
 }
 
 const NavLinks: React.FC<NavLinksProps> = ({
   role,
 }) => {
   const links =
-    role === "EMPLOYEE"
+    role === "APPLICANT"
       ? [
           { label: "Find Jobs", url: "/jobs" },
           {

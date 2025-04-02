@@ -8,10 +8,14 @@ import { Button, Divider, Modal } from "@mantine/core";
 import { Link, useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { DateInput, PickerControl, TimeInput } from "@mantine/dates";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 
 const TalentCard = (data: any) => {
+  useEffect(() =>{
+    console.log(data);
+    
+  },[])
   const [opened, { open, close }] =
     useDisclosure(false);
      const [value, setValue] =
@@ -26,17 +30,18 @@ const TalentCard = (data: any) => {
           <div className="flex gap-2 items-center">
             <div className="bg-gray-800 p-1 rounded-full h-16 flex items-center">
               <img
-                src={`/${data.image}.png`}
+                src={`/${data.picture}.png`}
                 alt={data.image}
                 className="h-15 rounded-full"
               />
             </div>
             <div>
               <div className="text-xl font-semibold truncate max-w-[14ch] overflow-hidden whitespace-nowrap">
-                {data.name}
+                {data.name || "unknown"}
               </div>
               <div className="text-sm flex">
-                {data.role} <Dot /> {data.company}
+                {data.jobTitle} <Dot />{" "}
+                {data.company}
               </div>
             </div>
           </div>
@@ -47,16 +52,23 @@ const TalentCard = (data: any) => {
         </div>
 
         {/* Skills */}
+        {/* Skills Section */}
         <div className="flex gap-3 py-4 flex-wrap">
-          {data.topSkills.map(
-            (item: any, index: number) => (
-              <div
-                key={index}
-                className="text-sm shadow-2xl bg-gray-700 py-1 px-2 rounded-lg"
-              >
-                {item}
-              </div>
+          {Array.isArray(data.skills) ? (
+            data.skills.map(
+              (item: any, index: number) => (
+                <div
+                  key={index}
+                  className="text-sm shadow-2xl bg-gray-700 py-1 px-2 rounded-lg"
+                >
+                  {item}
+                </div>
+              )
             )
+          ) : (
+            <div className="text-sm text-gray-400">
+              No skills listed
+            </div>
           )}
         </div>
 
@@ -84,7 +96,7 @@ const TalentCard = (data: any) => {
             <div className="flex gap-2">
               <MapPin size={18} />
               <div className="text-sm">
-                {data.location.split(",")[0]}
+                {data.location}
               </div>
             </div>
           </div>
@@ -98,7 +110,7 @@ const TalentCard = (data: any) => {
         <div className="px-4 my-3 flex gap-3 [&>*]:w-1/2 [&>*]:py-2 [&>*]:rounded-lg [&>*]:cursor-pointer [&>*]:font-bold [&>*]:text-green-500 [&>*]:text-center">
           {data.invite ? (
             <>
-            {/* Buttons for invited talents */}
+              {/* Buttons for invited talents */}
               <Button
                 color="greenTheme.5"
                 variant="outline"
@@ -140,14 +152,16 @@ const TalentCard = (data: any) => {
                 </Button>
               ) : (
                 // Button for Find Talents
-                  <Button
-                    color="greenTheme.5"
-                    variant="light"
-                    fullWidth
-                    onClick={() => navigate('/message')}
-                  >
-                    Message
-                  </Button>
+                <Button
+                  color="greenTheme.5"
+                  variant="light"
+                  fullWidth
+                  onClick={() =>
+                    navigate("/message")
+                  }
+                >
+                  Message
+                </Button>
               )}
             </>
           )}

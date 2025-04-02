@@ -18,6 +18,23 @@ export const getProfile = (id:number) =>{
     }
 }
 
+export const getAllProfiles = () =>{
+    try {
+        const response = axios.get(`${BASE_URL}/profile`)
+        return response;
+    } catch (e:unknown) {
+         if (axios.isAxiosError(e)) {
+            throw (
+                e.response?.data || {
+                    message: "Failed to update profile",}
+            );
+        }
+        throw {
+            message: "An unexpected error occurred",
+        }
+    }
+}
+
 export const updateProfile = (data: any) =>{
     try{
         const response = axios.put(`${BASE_URL}/profile/update`, data);

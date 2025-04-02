@@ -1,4 +1,5 @@
-import JobHistory from "../components/JobA-Applications/JobHistory";
+import JobHistory from "../components/Job-Applications/JobHistory";
+
 
 const JobApplicationsPage = () => {
  return (<div className="flex flex-col gap-4">

@@ -1,10 +1,11 @@
 const fields = [
   {
+    name: "jobTitle", // ✅ Added unique 'name'
     label: "Job Title",
     placeholder: "Enter Job Title",
     options: [
       "Designer",
-      "Developer",
+      "Software Developer",
       "Product Manager",
       "Marketing Specialist",
       "Data Analyst",
@@ -14,6 +15,7 @@ const fields = [
     ],
   },
   {
+    name: "company", // ✅ Added unique 'name'
     label: "Company",
     placeholder: "Enter Company Name",
     options: [
@@ -29,6 +31,7 @@ const fields = [
     ],
   },
   {
+    name: "experience", // ✅ Added unique 'name'
     label: "Experience",
     placeholder: "Enter Experience Level",
     options: [
@@ -38,6 +41,7 @@ const fields = [
     ],
   },
   {
+    name: "jobType", // ✅ Added unique 'name'
     label: "Job Type",
     placeholder: "Enter Job Type",
     options: [
@@ -49,6 +53,7 @@ const fields = [
     ],
   },
   {
+    name: "location", 
     label: "Location",
     placeholder: "Enter Job Location",
     options: [
@@ -63,6 +68,7 @@ const fields = [
     ],
   },
   {
+    name: "packageOffered", 
     label: "Salary",
     placeholder: "Enter Salary",
     options: [
@@ -77,6 +83,7 @@ const fields = [
     ],
   },
 ];
+
 const content = `
   <h3 style="color:#2c3e50; font-size: 24px; border-bottom: 2px solid #2c3e50; padding-bottom: 5px;">
     About the Job
