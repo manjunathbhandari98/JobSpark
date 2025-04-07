@@ -18,6 +18,8 @@ import { loginValidation } from "../../Validations/FormValidation";
 import { notifications } from "@mantine/notifications";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../Slices/UserSlice";
+import { getProfile } from "../../Services/ProfileService";
+import { setProfile } from "../../Slices/ProfileSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -56,63 +58,80 @@ const Login = () => {
 
 
   // Handle login with final validation
+
   const handleLogin = async () => {
-  const newErrors = {
-    email: loginValidation("email", data.email),
-    password: loginValidation("password", data.password),
-  };
+    const newErrors = {
+      email: loginValidation("email", data.email),
+      password: loginValidation(
+        "password",
+        data.password
+      ),
+    };
 
-  setFormError(newErrors);
+    setFormError(newErrors);
+    if (
+      Object.values(newErrors).some(
+        (error) => error
+      )
+    ) {
+      return;
+    }
 
-  if (Object.values(newErrors).some((error) => error)) {
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const response = await loginUser({
-      email: data.email,
-      password: data.password,
-    });
-
-    // Ensure the response contains user details
-    if (response?.data) {
-      const { name, id, accountType } = response.data;
-
-      const updatedUserData = {
+    try {
+      setLoading(true);
+      const response = await loginUser({
         email: data.email,
-        password:data.password,
-        name,
-        id,
-        accountType,
-      };
-
-      // Update state & Redux store
-      setData(updatedUserData);
-      dispatch(setUser(updatedUserData));
-
-      notifications.show({
-        title: "Welcome Back!",
-        message: "You have successfully logged in. Enjoy your session! 🎉",
-        color: "greenTheme.5",
+        password: data.password,
       });
 
-      setTimeout(() => {
-        navigate("/");
-      }, 2500);
-    } else {
-      throw new Error("Invalid response from server.");
+      if (response?.data) {
+        const { name, id, accountType } =
+          response.data;
+
+        const updatedUserData = {
+          email: data.email,
+          name,
+          id,
+          accountType,
+        };
+
+        dispatch(setUser(updatedUserData)); // Store user in Redux
+
+        // ✅ Fetch and store profile data immediately after login
+        const profileResponse = await getProfile(
+          id
+        );
+        if (profileResponse?.data) {
+          dispatch(
+            setProfile(profileResponse.data)
+          ); // Store profile in Redux
+        }
+
+        notifications.show({
+          title: "Welcome Back!",
+          message:
+            "You have successfully logged in. 🎉",
+          color: "greenTheme.5",
+        });
+
+        setTimeout(() => navigate("/"), 1000);
+      } else {
+        throw new Error(
+          "Invalid response from server."
+        );
+      }
+    } catch (error: any) {
+      notifications.show({
+        title: "Login Failed",
+        message:
+          "Invalid credentials. Please check your email and password.",
+        color: "red.7",
+      });
+    } finally {
+      setLoading(false);
     }
-  } catch (error: any) {
-    notifications.show({
-      title: "Login Failed",
-      message: "Invalid credentials. Please check your email and password.",
-      color: "red.7",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
 
 
   return (

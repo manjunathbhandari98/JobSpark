@@ -6,13 +6,13 @@ const Footer = () => {
   const location = useLocation();
   return (
     location.pathname !== "/auth" && (
-      <div className="text-white bg-[#040611]">
+      <div className="text-white bg-[#040611] ">
         <div className="flex px-20">
           <div className="flex flex-col space-y-5 w-[30%]">
             <div>
               {" "}
               <JobSparkLogo />{" "}
-            </div>
+            </div> 
             <div>
               Job portal with user profiles, skill
               updates, certifications, work

@@ -16,6 +16,7 @@ import {
 } from "react-redux";
 import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
+import { updateProfile } from "../../Services/ProfileService";
 
 interface Certificate {
   name: string;
@@ -29,50 +30,77 @@ const ProfileCertificate = () => {
     useState<number | null>(null);
   const [addCert, setAddCert] = useState(false);
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
   const certificates: Certificate[] =
     profile?.certificates || [];
   const dispatch = useDispatch();
 
-  const handleSave = (
-    updatedCertificate: Certificate,
-    index: number | null
-  ) => {
-    const updatedCertificates = [...certificates];
-    if (index !== null) {
-      updatedCertificates[index] =
-        updatedCertificate;
-    } else {
-      updatedCertificates.push(
-        updatedCertificate
-      );
-    }
+  const handleSave = async (
+  updatedCertificate: Certificate,
+  index: number | null
+) => {
+  const updatedCertificates = [...certificates];
+  if (index !== null) {
+    updatedCertificates[index] = updatedCertificate;
+  } else {
+    updatedCertificates.push(updatedCertificate);
+  }
 
-    dispatch(
-      changeProfile({
-        ...profile,
-        certificates: updatedCertificates,
-      })
-    );
-    setEditingIndex(null);
-    setAddCert(false);
+  const updatedProfile = {
+    ...profile,
+    certificates: updatedCertificates,
   };
 
-  const handleDelete = (index: number) => {
+  try {
+    const response = await updateProfile(updatedProfile); 
+    dispatch(changeProfile(response.data));               
+
+    notifications.show({
+      title: "Certificate updated",
+      message: "Certificate has been updated",
+      color: "green.8",
+    });
+  } catch (error) {
+    console.error("Error updating certificate:", error);
+    notifications.show({
+      title: "Error",
+      message: "Failed to update certificate",
+      color: "red.8",
+    });
+  }
+
+  setEditingIndex(null);
+  setAddCert(false);
+};
+
+
+
+  const handleDelete = async (index: number) => {
     const updatedCertificates =
       certificates.filter((_, i) => i !== index);
-    dispatch(
-      changeProfile({
-        ...profile,
-        certificates: updatedCertificates,
-      })
-    );
-    notifications.show({
-      title: "Certificate Deleted",
-      message: "Certificate deleted successfully",
-      color: "red.8",
-    })
+      try {
+        const response = await updateProfile({
+          ...profile,
+          certificates: updatedCertificates,
+        });
+        dispatch(
+          changeProfile(response.data)
+        );
+        notifications.show({
+          title: "Certificate Deleted",   
+          message: "Certificate deleted successfully",
+          color: "red.8",
+        });
+      } catch (error) {
+        notifications.show({
+          title: "Error",
+          message: "Failed to delete certificate",
+          color: "red.8",
+        });
+        
+      }
+    
   };
 
   return (

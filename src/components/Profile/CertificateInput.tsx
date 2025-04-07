@@ -9,6 +9,7 @@ import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
 import SelectInput from "./SelectInput";
 import { companies } from "../../data/Data";
+import { updateProfile } from "../../Services/ProfileService"; // ✅ Don't forget this!
 
 const CertificateInput = ({
   initialValues,
@@ -16,8 +17,8 @@ const CertificateInput = ({
 }: any) => {
   const dispatch = useDispatch();
   const profile = useSelector(
-    (state: any) => state.profile
-  );
+    (state: any) => state.profile.selectedProfile
+  ); // ✅ Use selectedProfile
 
   const form = useForm({
     initialValues: {
@@ -31,7 +32,7 @@ const CertificateInput = ({
     },
   });
 
-  const handleSave = (values: any) => {
+  const handleSave = async (values: any) => {
     const updatedCertificate = {
       ...values,
       issueDate: values.issueDate
@@ -57,21 +58,32 @@ const CertificateInput = ({
       );
     }
 
-    dispatch(
-      changeProfile({
+    try {
+      const response = await updateProfile({
         ...profile,
         certificates: updatedCertificates,
-      })
-    );
+      });
 
-    console.log(updatedCertificates)
-    notifications.show({
-      title: "Success",
-      message: "Certificate Updated Successfully",
-      color: "greenTheme.5",
-    });
+      dispatch(changeProfile(response.data)); // ✅ Sync with backend
 
-    onCancel();
+      notifications.show({
+        title: "Success",
+        message:
+          "Certificate updated successfully",
+        color: "greenTheme.5",
+      });
+      onCancel();
+    } catch (error) {
+      console.error(
+        "Error saving certificate:",
+        error
+      );
+      notifications.show({
+        title: "Error",
+        message: "Failed to update certificate",
+        color: "red.5",
+      });
+    }
   };
 
   return (
@@ -82,11 +94,11 @@ const CertificateInput = ({
       </div>
       <div className="flex flex-col gap-5">
         <TextInput
-          label="Certificate Name" // Change label to match backend
+          label="Certificate Name"
           withAsterisk
           placeholder="Enter Certificate Name"
           name="name"
-          {...form.getInputProps("name")} // Keep input field name as 'name'
+          {...form.getInputProps("name")}
         />
         <SelectInput
           label="Issuer"

@@ -1,4 +1,5 @@
-import { useState } from "react";
+// SearchBar.js
+import { useEffect, useState } from "react";
 import { dropdownData } from "../../data/JobsData";
 import MultiInput from "./MultiInput";
 import {
@@ -6,27 +7,89 @@ import {
   RangeSlider,
 } from "@mantine/core";
 
-const SearchBar = () => {
-  const [value, setValue] = useState<
-    [number, number]
-  >([1, 100]);
+interface SearchBarProps {
+  onSearch: (query: string) => void;
+  onSalaryChange: ( 
+    range: [number, number]
+  ) => void;
+  salaryRange: [number, number];
+  onJobTitleChange: (filters: string[]) => void;
+  onLocationChange: (filters: string[]) => void;
+  onExperienceChange: (filters: string[]) => void;
+  resetMultiInput:boolean;
+}
+
+const SearchBar = ({
+  onSearch,
+  onSalaryChange,
+  salaryRange,
+  onJobTitleChange,
+  onLocationChange,
+  onExperienceChange,
+  resetMultiInput,
+}: SearchBarProps) => {
+  const [searchTerm, setSearchTerm] =
+    useState("");
+  const [
+    resetLocalMultiInput,
+    setResetLocalMultiInput,
+  ] = useState(false);
+
+  useEffect(() => {
+    if (resetMultiInput) {
+      setResetLocalMultiInput(true);
+      setTimeout(
+        () => setResetLocalMultiInput(false),
+        0
+      );
+    }
+  }, [resetMultiInput]);
+
+  useEffect(() => {
+    setResetLocalMultiInput(false);
+  }, [resetLocalMultiInput]);
+
+  const handleSearchChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    onSearch(value);
+  };
+
+  const handleMultiInputChange = (
+    filters: string[],
+    title: string
+  ) => {
+    if (title === "Job Title") {
+      onJobTitleChange(filters);
+    } else if (title === "Location") {
+      onLocationChange(filters);
+    } else if (title === "Experience") {
+      onExperienceChange(filters);
+    }
+  };
+
   return (
-    <div className="flex flex-col w-full">
-      {/* Top thin gray line */}
+    <div>
       <Divider size="xs" />
-
-      {/* Search Bar Container */}
       <div className="flex w-full items-center py-4 px-5 rounded-lg">
-        {/* Search Input */}
-
-        {/* Filter Options */}
         {dropdownData.map((option, index) => (
           <div
             key={index}
             className="flex items-center gap-3 w-1/5 justify-between mx-2"
           >
             <div className="text-white">
-              <MultiInput {...option} />
+              <MultiInput
+                             {...option}
+                             onChange={(filters) =>
+                               handleMultiInputChange(
+                                 filters,
+                                 option.title
+                               )
+                             }
+                             resetValue={resetLocalMultiInput} // Pass reset prop
+                           />
             </div>
             <Divider
               size="xs"
@@ -38,19 +101,18 @@ const SearchBar = () => {
           <div className="flex text-sm justify-between py-2">
             <div>Salary</div>
             <div>
-              ₹{value[0]} LPA - ₹{value[1]} LPA
+              ₹{salaryRange[0]} LPA - ₹
+              {salaryRange[1]} LPA
             </div>
           </div>
           <RangeSlider
             size="sm"
             color="green"
-            value={value}
-            onChange={setValue}
+            value={salaryRange}
+            onChange={onSalaryChange}
           />
         </div>
       </div>
-
-      {/* Bottom thin gray line */}
       <Divider size="xs" />
     </div>
   );

@@ -4,57 +4,194 @@ import {
   Dot,
   MapPin,
 } from "lucide-react";
-import { Button, Divider, Modal } from "@mantine/core";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Button,
+  Divider,
+  Modal,
+} from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { DateInput, PickerControl, TimeInput } from "@mantine/dates";
-import { useEffect, useRef, useState } from "react";
+import {
+  DateInput,
+  TimeInput,
+} from "@mantine/dates";
+import { useState } from "react";
 import dayjs from "dayjs";
+import useImage from "../../hooks/useImage";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import { editJob } from "../../Slices/JobSlice";
+import { updateJob } from "../../Services/JobService";
 
-const TalentCard = (data: any) => {
-  useEffect(() =>{
-    console.log(data);
-    
-  },[])
+interface TalentCardProps {
+  id?: number;
+  name?: string;
+  title?: string;
+  skills?: string[];
+  location?: string;
+  experience?: number;
+  createdAt?: string;
+  about?: string;
+  picture?: string;
+  totalExperience?: number;
+  invite?: boolean;
+  manage?: boolean;
+  jobTitle?: string;
+  company?: string;
+  userName?: string;
+  status?: string;
+  onStatusChange?: (
+    status:
+      | "OFFERED"
+      | "ACCEPTED"
+      | "REJECTED"
+      | "INTERVIEWING"
+  ) => void;
+}
+
+const TalentCard = (data: TalentCardProps) => {
+  const imageSource = useImage(data?.picture);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const selectedJob = useSelector(
+    (state: any) => state.job?.selectedJob
+  );
+
   const [opened, { open, close }] =
     useDisclosure(false);
-     const [value, setValue] =
-       useState<Date | null>(null);
-       const ref = useRef<HTMLInputElement>(null);
-       const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] =
+    useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] =
+    useState<string | null>(null);
+
+  const handleProfile = () => {
+    if (data?.id) {
+      navigate(`/talent-profile/${data?.id}`);
+    }
+  };
+
+  const handleSchedule = async() => {
+    if (
+      selectedDate &&
+      selectedTime &&
+      selectedJob
+    ) {
+      const [hours, minutes] = selectedTime
+        .split(":")
+        .map(Number);
+      const combined = dayjs(selectedDate)
+        .set("hour", hours || 0)
+        .set("minute", minutes || 0)
+        .set("second", 0)
+        .set("millisecond", 0)
+        .toISOString();
+
+      const updatedApplicants =
+        selectedJob?.applicants?.map(
+          (applicant: any) => {
+            if (
+              applicant?.applicantId === data?.id
+            ) {
+              return {
+                ...applicant,
+                interviewTime: combined,
+                applicationStatus: "INTERVIEWING",
+              };
+            }
+            return applicant;
+          }
+        );
+
+      const updatedJob = {
+        ...selectedJob,
+        applicants: updatedApplicants,
+      };
+      console.log("Updated Job: ", updatedJob);
+      const response = await updateJob(selectedJob.id,updatedJob)
+      dispatch(editJob(response.data));
+      data?.onStatusChange?.("INTERVIEWING");
+      close();
+    }
+  };
+
+  const updateApplicantStatus = async(
+    newStatus: "OFFERED" | "REJECTED"
+  ) => {
+    if (!selectedJob || !data?.id) return;
+
+    const updatedApplicants =
+      selectedJob?.applicants?.map(
+        (applicant: any) => {
+          if (
+            applicant?.applicantId === data.id
+          ) {
+            return {
+              ...applicant,
+              applicationStatus: newStatus,
+            };
+          }
+          return applicant;
+        }
+      );
+
+    const updatedJob = {
+      ...selectedJob,
+      applicants: updatedApplicants,
+    };
+    const response = await updateJob(
+      selectedJob.id,
+      updatedJob)
+    dispatch(editJob(response.data));
+    data?.onStatusChange?.(newStatus);
+  };
+
+  const currentApplicant =
+    selectedJob?.applicants?.find(
+      (applicant: any) =>
+        applicant?.applicantId === data?.id
+    );
+
+  const currentStatus =
+    currentApplicant?.applicationStatus ??
+    "APPLIED";
+
   return (
     <div className="gap-4">
       <div className="bg-gray-900 rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500">
-        {/* Profile, role, company */}
+        {/* Top Info */}
         <div className="flex justify-between">
           <div className="flex gap-2 items-center">
             <div className="bg-gray-800 p-1 rounded-full h-16 flex items-center">
               <img
-                src={`/${data.picture}.png`}
-                alt={data.image}
+                src={imageSource}
+                alt="profile"
                 className="h-15 rounded-full"
               />
             </div>
             <div>
               <div className="text-xl font-semibold truncate max-w-[14ch] overflow-hidden whitespace-nowrap">
-                {data.name || "unknown"}
+                {data?.userName ||
+                  data?.name ||
+                  "Unknown"}
               </div>
               <div className="text-sm flex">
-                {data.jobTitle} <Dot />{" "}
-                {data.company}
+                {data?.jobTitle ?? "Unknown"}{" "}
+                <Dot />{" "}
+                {data?.company ?? "Unknown"}
               </div>
             </div>
           </div>
-
           <div className="cursor-pointer">
             <Bookmark />
           </div>
         </div>
 
         {/* Skills */}
-        {/* Skills Section */}
         <div className="flex gap-3 py-4 flex-wrap">
-          {Array.isArray(data.skills) ? (
+          {Array.isArray(data?.skills) &&
+          data.skills.length > 0 ? (
             data.skills.map(
               (item: any, index: number) => (
                 <div
@@ -74,7 +211,7 @@ const TalentCard = (data: any) => {
 
         {/* About */}
         <div className="text-sm line-clamp-3">
-          {data.about}
+          {data?.about ?? "No description"}
         </div>
 
         <Divider
@@ -82,35 +219,57 @@ const TalentCard = (data: any) => {
           className="my-3"
         />
 
-        {/* Salary & location */}
-        {data.invite ? (
+        {/* Experience or Interview Info */}
+        {data?.invite ? (
           <div className="flex gap-2 items-center">
-            <Calendar size={18} />
-            Interview : 12, August 2025 10:30 AM
+            <Calendar size={18} /> Interview: 12
+            August 2025 10:30 AM
           </div>
         ) : (
           <div className="flex justify-between items-center">
             <div className="text-xl font-semibold">
-              Exc: {data.expectedCtc}
+              Exp: {data?.totalExperience ?? 0}
             </div>
             <div className="flex gap-2">
               <MapPin size={18} />
               <div className="text-sm">
-                {data.location}
+                {data?.location ?? "N/A"}
               </div>
             </div>
           </div>
         )}
+
         <Divider
           size="xs"
           className="my-2"
         />
 
-        {/* Buttons */}
+        {/* Action Buttons */}
         <div className="px-4 my-3 flex gap-3 [&>*]:w-1/2 [&>*]:py-2 [&>*]:rounded-lg [&>*]:cursor-pointer [&>*]:font-bold [&>*]:text-green-500 [&>*]:text-center">
-          {data.invite ? (
+          {[
+            "OFFERED",
+            "REJECTED",
+            "ACCEPTED",
+          ].includes(currentStatus) ? (
+            <div
+              className={`flex justify-center mx-auto items-center font-bold w-full text-center ${
+                currentStatus === "OFFERED"
+                  ? "text-green-500"
+                  : currentStatus === "REJECTED"
+                  ? "text-red-500"
+                  : "text-blue-500"
+              }`}
+            >
+              Status:{" "}
+              {currentStatus
+                .charAt(0)
+                .toUpperCase() +
+                currentStatus
+                  .slice(1)
+                  .toLowerCase()}
+            </div>
+          ) : data?.invite ? (
             <>
-              {/* Buttons for invited talents */}
               <Button
                 color="greenTheme.5"
                 variant="outline"
@@ -127,31 +286,58 @@ const TalentCard = (data: any) => {
               </Button>
             </>
           ) : (
-            // Buttons For Applicants
             <>
               <Button
                 color="greenTheme.5"
                 variant="outline"
                 fullWidth
-                onClick={() =>
-                  navigate("/talent-profile")
-                }
+                onClick={handleProfile}
               >
                 Profile
               </Button>
-              {data.manage ? (
-                <Button
-                  color="greenTheme.5"
-                  variant="light"
-                  fullWidth
-                  rightSection={
-                    <Calendar size={18} />
-                  }
-                >
-                  Schedule
-                </Button>
+              {data?.manage || !data?.status ? (
+                currentStatus ===
+                "INTERVIEWING" ? (
+                  <>
+                    <Button
+                      color="greenTheme.5"
+                      variant="outline"
+                      fullWidth
+                      onClick={() =>
+                        updateApplicantStatus(
+                          "OFFERED"
+                        )
+                      }
+                    >
+                      Offer
+                    </Button>
+                    <Button
+                      color="red.7"
+                      variant="outline"
+                      fullWidth
+                      onClick={() =>
+                        updateApplicantStatus(
+                          "REJECTED"
+                        )
+                      }
+                    >
+                      Reject
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    color="greenTheme.5"
+                    variant="light"
+                    fullWidth
+                    rightSection={
+                      <Calendar size={18} />
+                    }
+                    onClick={open}
+                  >
+                    Schedule
+                  </Button>
+                )
               ) : (
-                // Button for Find Talents
                 <Button
                   color="greenTheme.5"
                   variant="light"
@@ -167,36 +353,54 @@ const TalentCard = (data: any) => {
           )}
         </div>
       </div>
+
+      {/* Schedule Modal */}
       <Modal
         opened={opened}
         onClose={close}
-        title="Schedule Date"
+        title="Schedule Interview"
+        centered
+        overlayProps={{
+          blur: 3,
+          backgroundOpacity: 0.4,
+        }}
       >
-        <div>
+        <div className="space-y-4">
           <DateInput
             minDate={new Date()}
-            maxDate={dayjs(new Date())
-              .add(1, "month")
-              .toDate()}
-            value={value}
-            onChange={setValue}
-            label="Schedule Date"
-            placeholder="Enter Date"
+            value={selectedDate}
+            onChange={setSelectedDate}
+            label="Interview Date"
+            placeholder="Choose a date"
+            className="w-full"
           />
           <TimeInput
-            label="Time"
-            ref={ref}
-            onClick={() =>
-              ref.current?.showPicker()
+            label="Interview Time"
+            value={selectedTime ?? ""}
+            onChange={(event) =>
+              setSelectedTime(
+                event?.currentTarget?.value ?? ""
+              )
             }
+            className="w-full"
           />
-          <Button
-            color="greenTheme.5"
-            variant="light"
-            fullWidth
-          >
-            Schedule
-          </Button>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="default"
+              onClick={close}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="greenTheme.5"
+              onClick={handleSchedule}
+              disabled={
+                !selectedDate || !selectedTime
+              }
+            >
+              Schedule
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

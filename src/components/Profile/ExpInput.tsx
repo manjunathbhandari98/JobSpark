@@ -13,6 +13,7 @@ import {
 } from "react-redux";
 import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
+import { updateProfile } from "../../Services/ProfileService";
 
 const ExpInput = ({
   initialValues,
@@ -21,7 +22,7 @@ const ExpInput = ({
   const select = fields;
   const dispatch = useDispatch();
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
 
   const form = useForm({
@@ -42,7 +43,7 @@ const ExpInput = ({
     },
   });
 
-  const handleSave = (values: any) => {
+  const handleSave = async (values: any) => {
     const updatedExperience = {
       ...values,
       working: values.currentlyWorking,
@@ -74,7 +75,12 @@ const ExpInput = ({
       updatedExperiences.push(updatedExperience);
     }
 
-    dispatch(
+    try {
+      await updateProfile({
+        ...profile,
+        experiences: updatedExperiences,
+      })
+      dispatch(
       changeProfile({
         ...profile,
         experiences: updatedExperiences,
@@ -86,6 +92,17 @@ const ExpInput = ({
       message: "Experience Updated Successfully",
       color: "greenTheme.5",
     });
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: "Failed to update experience",
+        color: "red.8",
+      });
+      return;
+      
+    }
+
+    
 
     onCancel();
   };

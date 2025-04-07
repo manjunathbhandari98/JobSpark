@@ -1,27 +1,58 @@
-import { Link, useLocation } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+} from "react-router-dom";
 import Logo from "../../assets/Logo";
-import { useState,useEffect } from "react";
-// import UserButton from "./UserButton";
-import { Bell } from "lucide-react";
-import { Button, Indicator } from "@mantine/core";
+import { Button } from "@mantine/core";
 import NavLinks from "./NavLinks";
 import ProfileMenu from "./ProfileMenu";
-import {useSelector, useDispatch} from 'react-redux';
-import { setProfile } from "../../Slices/ProfileSlice";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import useImage from "../../hooks/useImage";
+import { useEffect, useState } from "react";
 import { getProfile } from "../../Services/ProfileService";
+import { setProfile } from "../../Slices/ProfileSlice";
+import NotificationsMenu from "./NotificationsMenu";
+import { getNotifications } from "../../Services/NotificationService";
 
 const Header = () => {
-  
   const location = useLocation();
-  const user = useSelector((state:any)=>state.user)
-  const profile = useSelector((state:any) => state.profile)
   const dispatch = useDispatch();
-  const [profilePic, setProfilePic] = useState(profile?.picture);
-  const role = user?.accountType;
+
+  const user = useSelector(
+    (state: any) => state.user
+  );
+  const profile = useSelector(
+    (state: any) => state.profile.selectedProfile
+  );
+  const [notifications, setNotifications] =
+    useState([]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await getNotifications(
+        user.id
+      );
+      setNotifications(response.data);
+    } catch (error) {
+      console.error(
+        "Error fetching notifications:",
+        error
+      );
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!profile.picture && user.id) {
+    if (user?.id) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user?.id && !profile) {
+      const fetchProfile = async () => {
         try {
           const response = await getProfile(
             user.id
@@ -33,55 +64,45 @@ const Header = () => {
             error
           );
         }
-      }
-    };
-    fetchProfile();
-  }, []);
+      };
+      fetchProfile();
+    }
+  }, [dispatch, user?.id, profile]);
 
-useEffect(() => {
-  setProfilePic(profile?.picture);
-}, [profile?.picture]); // Re-renders when profile picture updates
-  
+  const imageSource = useImage(profile?.picture);
+
+  if (location.pathname === "/auth") return null;
+
   return (
-    location.pathname !== "/auth" && (
-      <div className="w-full flex h-22 text-white justify-between p-5 items-center bg-[#040611]">
-        <div>
-          <Link to="/">
-            <Logo />
-          </Link>
-        </div>
-        {/* Header options */}
-        <NavLinks role={role} />
-        {/* switch - delete later */}
-        
-        {/* Profile */}
-        <div className="flex gap-7 items-center">
-          <Indicator
-            color="green"
-            size={10}
-            processing
-          >
-            <Bell
-              size={28}
-              className="cursor-pointer"
-            />
-          </Indicator>
-          {user ? (
-            <ProfileMenu
-  image={profilePic ? `data:image/jpeg;base64,${profilePic}` : "/avatar.png"}
-  name={user.name}
-  email={user.email}
-/>
-          ) : (
-            <Link to="/auth?mode=login">
-              <Button variant="light">
-                Login
-              </Button>
-            </Link>
-          )}
-        </div>
+    <div className="w-full flex h-22 text-white justify-between p-5 items-center bg-[#040611]">
+      <div>
+        <Link to="/">
+          <Logo />
+        </Link>
       </div>
-    )
+
+      <NavLinks role={user?.accountType} />
+
+      <div className="flex gap-7 items-center">
+        <NotificationsMenu
+          notifications={notifications}
+          refreshNotifications={
+            fetchNotifications
+          }
+        />
+        {user ? (
+          <ProfileMenu
+            image={imageSource}
+            name={user.name}
+            email={user.email}
+          />
+        ) : (
+          <Link to="/auth?mode=login">
+            <Button variant="light">Login</Button>
+          </Link>
+        )}
+      </div>
+    </div>
   );
 };
 

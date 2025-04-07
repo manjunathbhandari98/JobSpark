@@ -1,4 +1,7 @@
-import { ActionIcon, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Tooltip,
+} from "@mantine/core";
 import {
   IconPlus,
   IconPencil,
@@ -13,59 +16,92 @@ import {
 } from "react-redux";
 import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
+import { updateProfile } from "../../Services/ProfileService";
 
 const ProfileExperience = () => {
   const [editingIndex, setEditingIndex] =
     useState<number | null>(null);
   const [addExp, setAddExp] = useState(false);
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
   const experiences = profile?.experiences || [];
   const dispatch = useDispatch();
 
-  const handleSave = (
+  const handleSave = async (
     updatedExperience: any,
     index: number | null
   ) => {
     const updatedExperiences = [...experiences];
 
     if (index !== null) {
-      // Editing an existing experience
       updatedExperiences[index] =
         updatedExperience;
     } else {
-      // Adding a new experience
       updatedExperiences.push(updatedExperience);
     }
 
-    console.log(updatedExperiences);
-    
-    dispatch(
-      changeProfile({
-        ...profile,
-        experiences: updatedExperiences,
-      })
-    );
+    const updatedProfile = {
+      ...profile,
+      experiences: updatedExperiences,
+    };
+
+    try {
+      const response = await updateProfile(
+        updatedProfile
+      ); // ✅ wait and get data
+      dispatch(changeProfile(response.data)); // ✅ use actual updated profile
+
+      notifications.show({
+        title: "Experience updated",
+        message: "Experience has been updated",
+        color: "green.8",
+      });
+    } catch (error) {
+      console.error(
+        "Error updating profile:",
+        error
+      );
+      notifications.show({
+        title: "Error",
+        message: "Failed to update experience",
+        color: "red.8",
+      });
+    }
+
     setEditingIndex(null);
     setAddExp(false);
   };
 
-  const handleDelete = (index: number) => {
+
+
+  const handleDelete = async (index: number) => {
     const updatedExperiences = experiences.filter(
-      (_:any, i:number) => i !== index
+      (_: any, i: number) => i !== index
     );
-    dispatch(
-      changeProfile({
+
+    try {
+      const response = await updateProfile({
         ...profile,
         experiences: updatedExperiences,
-      })
-    );
-    notifications.show({
-      title: "Experience deleted",
-      message: "Experience has been deleted",
-      color: "red.8",
-    })
+      });
+      dispatch(changeProfile(response.data));
+      notifications.show({
+        title: "Experience deleted",
+        message: "Experience has been deleted",
+        color: "red.8",
+      });
+    } catch (error) {
+      console.error(
+        "Error deleting experience:",
+        error
+      );
+      notifications.show({
+        title: "Error",
+        message: "Failed to delete experience",
+        color: "red.8",
+      });
+    }
   };
 
   return (

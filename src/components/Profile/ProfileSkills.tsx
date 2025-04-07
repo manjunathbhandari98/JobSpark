@@ -13,11 +13,12 @@ import {
 } from "react-redux";
 import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
+import { updateProfile } from "../../Services/ProfileService";
 
 const ProfileSkills = () => {
   const [edit, setEdit] = useState(false);
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
   const dispatch = useDispatch();
 
@@ -36,17 +37,31 @@ const ProfileSkills = () => {
   };
 
   // Handle Save (Updates Redux store)
-  const handleSave = () => {
+  const handleSave = async() => {
     const updatedProfile = {
       ...profile,
       skills: form.values.skills || [], // Prevent undefined errors
     };
-    dispatch(changeProfile(updatedProfile));
-    notifications.show({
-      title: "Skills Updated",
-      message: "Your skills have been updated.",
-      color: "greenTheme.5",
-    })
+    try {
+      await updateProfile(
+        updatedProfile
+      ); // Get the updated profile from API
+      // Use updated version from backend (if backend modified anything)
+      dispatch(changeProfile(updatedProfile));
+      notifications.show({
+        title: "Success",
+        message: "Profile updated successfully",
+        color: "greenTheme.5",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: "Failed to update skills",
+        color: "red.5",
+      });
+      return;
+      
+    }
     setEdit(false);
   };
 

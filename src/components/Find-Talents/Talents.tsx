@@ -1,47 +1,329 @@
-import { Filter, X } from "lucide-react";
 import TalentCard from "./TalentCard";
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from "react";
 import { getAllProfiles } from "../../Services/ProfileService";
+import SearchBar from "./SearchBar";
+import Filter from "./Filter";
+import { getAllUsers } from "../../Services/UserService";
+import { Button } from "@mantine/core";
+import { X } from "lucide-react";
 
+interface Profile {
+  id: number;
+  name: string;
+  title: string;
+  skills: string[];
+  location: string;
+  experience: number;
+  createdAt: string;
+  about: string;
+  picture: string;
+  totalExperience: number;
+  invite?: boolean;
+  manage?: boolean;
+  jobTitle: string;
+  company: string;
+}
+
+interface User {
+  profileId: number;
+  name: string;
+  accountType: string;
+}
 
 const Talents = () => {
-  const [profileList, setProfileList] = useState([]);
-  useEffect(()=>{
-    const fetchProfiles = async() =>{
+  const [profileList, setProfileList] = useState<
+    Profile[]
+  >([]);
+  const [filteredProfiles, setFilteredProfiles] =
+    useState<Profile[]>([]);
+  const [searchQuery, setSearchQuery] =
+    useState<string>("");
+  const [jobTitle, setJobTitle] = useState<
+    string[]
+  >([]);
+  const [experienceRange, setExperienceRange] =
+    useState<[number, number]>([0, 50]);
+  const [skillFilters, setSkillFilters] =
+    useState<string[]>([]);
+  const [locationFilters, setLocationFilters] =
+    useState<string[]>([]);
+  const [selectedFilter, setSelectedFilter] =
+    useState<string>("Relevant");
+  const [users, setUsers] = useState<User[]>([]);
+  const [isClearingFilter, setIsClearingFilter] =
+    useState<boolean>(false);
+  const [resetMultiInput, setResetMultiInput] =
+    useState(false); // Add reset state
+
+  useEffect(() => {
+    const fetchProfilesAndUsers = async () => {
       try {
-        const response = await getAllProfiles();
-        setProfileList(response.data);
-        
+        const usersResponse: User[] =
+          await getAllUsers();
+        const applicants: User[] =
+          usersResponse.filter(
+            (user: User) =>
+              user.accountType === "APPLICANT"
+          );
+        setUsers(applicants);
+          
+        const profileResponse =
+          await getAllProfiles();
+        const allProfiles: Profile[] =
+          profileResponse.data;
+
+        const applicantProfileIds = new Set(
+          applicants.map(
+            (user: User) => user.profileId
+          )
+        );
+
+        const matchedProfiles: Profile[] =
+          allProfiles.filter((profile: Profile) =>
+            applicantProfileIds.has(profile.id)
+          );
+
+        setProfileList(matchedProfiles);
+        setFilteredProfiles(matchedProfiles);
       } catch (error) {
-        throw error
+        console.error(
+          "Error fetching data:",
+          error
+        );
       }
+    };
+
+    fetchProfilesAndUsers();
+  }, []);
+
+  useEffect(() => {
+    if (!isClearingFilter) {
+      applyFilters();
     }
-    fetchProfiles();
-  },[])
+    setIsClearingFilter(false);
+  }, [
+    profileList,
+    searchQuery,
+    jobTitle,
+    skillFilters,
+    locationFilters,
+    experienceRange,
+    selectedFilter,
+    isClearingFilter,
+  ]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleJobTitleChange = (
+    titles: string[]
+  ) => {
+    setJobTitle(titles);
+  };
+
+  const handleExperienceChange = (
+    range: [number, number]
+  ) => {
+    setExperienceRange(range);
+  };
+
+  const handleSkillChange = (
+    filters: string[]
+  ) => {
+    setSkillFilters(filters);
+  };
+
+  const handleLocationChange = (
+    filters: string[]
+  ) => {
+    setLocationFilters(filters);
+  };
+
+  const handleFilter = (filterType: string) => {
+    setSelectedFilter(filterType);
+  };
+
+  const applyFilters = () => {
+    let filtered: Profile[] = profileList.filter(
+      (profile: Profile) => {
+        const skillMatch =
+          skillFilters.length === 0 ||
+          (profile.skills &&
+            profile.skills.some((skill) =>
+              skill
+                .toLowerCase()
+                .includes(
+                  skillFilters
+                    .join(" ")
+                    .toLowerCase()
+                )
+            ));
+        const locationMatch =
+          locationFilters.length === 0 ||
+          locationFilters.some((filter) =>
+            profile.location
+              ?.toLowerCase()
+              .includes(filter.toLowerCase())
+          );
+        const experienceMatch =
+          profile.totalExperience >=
+            experienceRange[0] &&
+          profile.totalExperience <=
+            experienceRange[1];
+        const searchQueryMatch =
+          searchQuery === "" ||
+          profile.name
+            .toLowerCase()
+            .includes(
+              searchQuery.toLowerCase()
+            ) ||
+          profile.title
+            .toLowerCase()
+            .includes(
+              searchQuery.toLowerCase()
+            ) ||
+          (profile.skills &&
+            profile.skills.some((skill) =>
+              skill
+                .toLowerCase()
+                .includes(
+                  searchQuery.toLowerCase()
+                )
+            ));
+        const jobTitleMatch =
+          jobTitle.length === 0 ||
+          jobTitle.some((title) =>
+            profile.jobTitle
+              ?.toLowerCase()
+              .includes(title.toLowerCase())
+          );
+        return (
+          skillMatch &&
+          locationMatch &&
+          experienceMatch &&
+          searchQueryMatch &&
+          jobTitleMatch
+        );
+      }
+    );
+
+    let sortedProfiles: Profile[] = [...filtered];
+
+    switch (selectedFilter) {
+      case "Most Recent":
+        sortedProfiles.sort(
+          (a: Profile, b: Profile) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        );
+        break;
+      case "Experience (Low to High)":
+        sortedProfiles.sort(
+          (a: Profile, b: Profile) =>
+            a.totalExperience - b.totalExperience
+        );
+        break;
+      case "Experience (High to Low)":
+        sortedProfiles.sort(
+          (a: Profile, b: Profile) =>
+            b.totalExperience - a.totalExperience
+        );
+        break;
+      default:
+    }
+
+    setFilteredProfiles(sortedProfiles);
+  };
+
+ const clearFilter = () => {
+   setIsClearingFilter(true);
+
+   setSearchQuery("");
+   setJobTitle([]);
+   setExperienceRange([0, 50]);
+   setSkillFilters([]);
+   setLocationFilters([]);
+   setSelectedFilter("Relevant");
+   setFilteredProfiles(profileList);
+
+   setResetMultiInput(true); // Trigger reset
+   setTimeout(() => setResetMultiInput(false), 0); // Reset after a tiny delay
+ };
+
+ const isFilterApplied =
+   searchQuery !== "" ||
+   jobTitle.length > 0 ||
+   skillFilters.length > 0 ||
+   locationFilters.length > 0 ||
+   experienceRange[0] !== 0 ||
+   experienceRange[1] !== 50 ||
+   selectedFilter !== "Relevant";
 
   return (
     <div className="p-4">
-      <div className="flex justify-between">
+      <SearchBar
+        onSearch={handleSearch}
+        onExperienceChange={
+          handleExperienceChange
+        }
+        onJobTitleChange={handleJobTitleChange}
+        experienceRange={experienceRange}
+        onSkillChange={handleSkillChange}
+        onLocationChange={handleLocationChange}
+        resetMultiInput={resetMultiInput} // Pass reset prop
+      />
+      <div className="flex justify-between mt-4">
         <div className="flex gap-4">
-          <div className="text-3xl font-bold">
+          <div className="flex gap-3">
+            <div className="text-3xl font-bold">
             Talents
           </div>
-          <div className="bg-green-500 p-2 flex cursor-pointer rounded-lg">
-            <X /> Clear Filter
+          {isFilterApplied && (
+                      <Button
+                        onClick={clearFilter}
+                        radius={50}
+                        variant="outline"
+                        color="red.8"
+                        className="text-red-500 cursor-pointer"
+                      >
+                        Clear Filter
+                        <X size={20} className="ml-4"/>
+                      </Button>
+                    )}
           </div>
+          
         </div>
-        <div>
-          <Filter />
+        <div className="flex items-center gap-2">
+          <Filter
+            onFilter={handleFilter}
+            selectedFilter={selectedFilter}
+          />
+          
         </div>
       </div>
       <div className="py-4 mt-5 grid grid-cols-3 gap-4">
-        {profileList.map(
-          (data: any, index: number) => (
-            <TalentCard
-              key={index}
-              {...data}
-            />
+        {filteredProfiles.length > 0 ? (
+          filteredProfiles.map(
+            (profile: Profile, index: number) => {
+              const user: User | undefined =
+                users.find(
+                  (user) =>
+                    user.profileId === profile.id
+                );
+              return (
+                <TalentCard
+                  key={index}
+                  {...profile}
+                  userName={
+                    user?.name || "Unknown"
+                  }
+                />
+              );
+            }
           )
+        ) : (
+          <p>No talents found.</p>
         )}
       </div>
     </div>

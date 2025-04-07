@@ -1,31 +1,35 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { updateProfile } from "../Services/ProfileService";
 
-// Creating a Redux slice for managing profile state
 const ProfileSlice = createSlice({
-  name: "profile", // Slice name
-  initialState: {}, // Initial state of the profile (empty object)
+  name: "profile",
+  initialState: {
+    profiles: [], // Added to store multiple profiles
+    selectedProfile: null, // Holds a single selected profile
+  },
 
   reducers: {
-    // Action to set the profile state with a new profile object
+    // Set a single profile
     setProfile: (state, action) => {
-      state = action.payload; // Replacing the state with the new profile data
-      return state; // Return the updated state
+      state.selectedProfile = action.payload;
     },
 
-    // Action to update the profile
-    changeProfile: (state, action) => {
-      state = updateProfile(action.payload); // Call the API function to update the profile
-      return action.payload; // Return the updated profile data
+    // Set multiple profiles
+    setProfiles: (state, action) => {
+      state.profiles = action.payload;
     },
+
+    // Update profile
+    changeProfile: (state, action) => {
+      state.selectedProfile = action.payload;
+    },
+
+
   },
 });
 
-
-
-// Exporting actions to be used in components
-export const { setProfile, changeProfile } =
-  ProfileSlice.actions;
-
-// Exporting reducer to be used in the Redux store
+export const {
+  setProfile,
+  setProfiles,
+  changeProfile,
+} = ProfileSlice.actions;
 export default ProfileSlice.reducer;

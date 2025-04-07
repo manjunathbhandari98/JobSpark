@@ -8,7 +8,7 @@ import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { getProfile } from "../../Services/ProfileService";
+import { getProfile, updateProfile } from "../../Services/ProfileService";
 import {
   changeProfile,
   setProfile,
@@ -19,10 +19,11 @@ import ProfileSkills from "./ProfileSkills";
 import ProfileExperience from "./ProfileExperience";
 import ProfileCertificate from "./ProfileCertificate";
 import { notifications } from "@mantine/notifications";
+import useImage from "../../hooks/useImage";
 
 const Profile = () => {
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
   const dispatch = useDispatch();
   const user = useSelector(
@@ -47,20 +48,41 @@ const Profile = () => {
   }, [dispatch, user.id]);
 
   const handleFileChange = async (image: any) => {
-    const img: any = await getBase64(image);
-    const base64Data = img.split(",")[1];
-    const updatedImg = {
-      ...profile,
-      picture: base64Data,
-    };
-    dispatch(changeProfile(updatedImg));
-    notifications.show({
-      title: "Profile Picture Updated",
-      message:
-        "Your profile picture has been updated successfully",
-      color: "greenTheme.5",
-      icon: true,
-    });
+    try {
+      const img: any = await getBase64(image);
+      const base64Data = img.split(",")[1];
+      const updatedImg = {
+        ...profile,
+        picture: base64Data,
+      };
+
+      // ✅ Save to backend
+      const response = await updateProfile(
+        updatedImg
+      );
+
+      // ✅ Update Redux with response
+      dispatch(changeProfile(response.data));
+
+      notifications.show({
+        title: "Profile Picture Updated",
+        message:
+          "Your profile picture has been updated successfully",
+        color: "greenTheme.5",
+        icon: true,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to update profile image:",
+        error
+      );
+      notifications.show({
+        title: "Error",
+        message:
+          "Failed to update profile picture",
+        color: "red.7",
+      });
+    }
   };
 
   const getBase64 = (file: any) => {
@@ -73,21 +95,8 @@ const Profile = () => {
     });
   };
 
-  const getImageSource = () => {
-    if (profile.picture) {
-      try {
-        const base64String = `data:image/jpeg;base64,${profile.picture}`;
-        return base64String;
-      } catch (error) {
-        console.error(
-          "Error generating image source:",
-          error
-        );
-        return "/avatar.png";
-      }
-    }
-    return "/avatar.png";
-  };
+
+  const imageSource = useImage(profile?.picture)
 
   return (
     <div className="my-10 w-4/5 mx-auto">
@@ -102,7 +111,7 @@ const Profile = () => {
             <div className="relative w-44 h-44 e-profile">
               <div className="e-custom-wrapper w-full h-full rounded-full overflow-hidden shadow-md">
                 <img
-                  src={getImageSource()}
+                  src={imageSource}
                   alt="Profile Avatar"
                   id="custom-img"
                 />

@@ -1,5 +1,6 @@
 import { Divider } from "@mantine/core";
 import { Dot } from "lucide-react";
+import { formatDateToMonthYear } from './../../Utils/dateFormater';
 
 const Experience = (props: any) => {
   return (
@@ -34,7 +35,25 @@ const Experience = (props: any) => {
             </div>
           </div>
           <div>
-            {props.startDate} - {props.endDate}
+            {!props.working ? (
+              <div>
+                {formatDateToMonthYear(
+                  props.startDate
+                )}{" "}
+                -{" "}
+                {formatDateToMonthYear(
+                  props.endDate
+                )}
+              </div>
+            ) : (
+              <div>
+                {formatDateToMonthYear(
+                  props.startDate
+                )}{" "}
+                -{" "}
+                Present
+              </div>
+            )}
           </div>
         </div>
         {/* about */}

@@ -8,10 +8,13 @@ import { setJobs, setJob } from "../../Slices/JobSlice";
 const JobTabs = () => {
   const dispatch = useDispatch();
   const jobs = useSelector((state: any) => state.job.jobs) || [];
+  const user = useSelector((state:any) => state.user);
 
-  const activeJobs = jobs.filter((job: any) => job.jobStatus === "ACTIVE");
-  const drafts = jobs.filter((job: any) => job.jobStatus === "DRAFT");
-  const closed = jobs.filter((job: any) => job.jobStatus === "CLOSED");
+  const postedJobs = jobs.filter((job:any) => job.postedBy === user.id);
+
+  const activeJobs = postedJobs.filter((job: any) => job.jobStatus === "ACTIVE");
+  const drafts = postedJobs.filter((job: any) => job.jobStatus === "DRAFT");
+  const closed = postedJobs.filter((job: any) => job.jobStatus === "CLOSED");
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -27,7 +30,7 @@ const JobTabs = () => {
   }, [dispatch]);
 
   return (
-    <div className="px-3 w-1/5">
+    <div className="px-3 w-2/7">
       <div className="text-2xl font-semibold mb-5">Jobs</div>
       <Tabs variant="pills" autoContrast defaultValue="active">
         <Tabs.List className="[&_button[aria-selected='false']]:!bg-gray-400 [&_button[aria-selected='false']]:!text-black font-medium]">

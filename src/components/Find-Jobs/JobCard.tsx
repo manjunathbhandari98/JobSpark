@@ -10,7 +10,7 @@ const JobCard = (data: any) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleNavigate = () =>{
+  const handleNavigate = () =>{ 
     navigate('/job');
     dispatch(setJob(data))
   }

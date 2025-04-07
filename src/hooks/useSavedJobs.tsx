@@ -4,43 +4,68 @@ import {
 } from "react-redux";
 import { changeProfile } from "../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
+import { updateProfile } from "../Services/ProfileService";
 
 const useSavedJob = () => {
-  const profile = useSelector(
-    (state: any) => state.profile
-  );
   const dispatch = useDispatch();
+  const profile = useSelector(
+    (state: any) => state.profile.selectedProfile
+  );
 
-  const toggleSavedJob = (jobId: string) => {
-    const savedJobs = profile.savedJobs || [];
+  const toggleSavedJob = async (
+    jobId: string
+  ) => {
+    try {
+      const currentSavedJobs =
+        profile?.savedJobs || [];
+      const isJobSaved =
+        currentSavedJobs.includes(jobId);
 
-    const isJobSaved = savedJobs.includes(jobId);
-    const updatedSavedJobs = isJobSaved
-      ? savedJobs.filter(
-          (id: string) => id !== jobId
-        ) // Remove if already saved
-      : [...savedJobs, jobId]; // Add if not saved
+      const updatedSavedJobs = isJobSaved
+        ? currentSavedJobs.filter(
+            (id: string) => id !== jobId
+          )
+        : [...currentSavedJobs, jobId];
 
-    dispatch(
-      changeProfile({
+      const updatedProfile = {
         ...profile,
         savedJobs: updatedSavedJobs,
-      })
-    );
+      };
 
-    notifications.show({
-      title: isJobSaved
-        ? "Job Removed from Saved"
-        : "Job Saved",
-      message: isJobSaved
-        ? "Job has been removed from saved jobs."
-        : "Job has been saved successfully.",
-    });
+      const response = await updateProfile(
+        updatedProfile
+      );
+
+      // Update the Redux store
+      dispatch(changeProfile(response.data));
+
+      // Show feedback
+      notifications.show({
+        title: isJobSaved
+          ? "Removed from Saved"
+          : "Saved Job",
+        message: isJobSaved
+          ? "Job removed from your saved list."
+          : "Job added to your saved list.",
+        color: isJobSaved ? "red" : "green",
+      });
+    } catch (error) {
+      console.error(
+        "Failed to toggle saved job:",
+        error
+      );
+      notifications.show({
+        title: "Error",
+        message:
+          "Could not update saved jobs. Please try again.",
+        color: "red",
+      });
+    }
   };
 
   return {
     toggleSavedJob,
-    savedJobs: profile.savedJobs || [],
+    savedJobs: profile?.savedJobs || [],
   };
 };
 

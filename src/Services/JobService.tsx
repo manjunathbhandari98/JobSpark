@@ -57,7 +57,7 @@ export const getJob =async (id:any) => {
         errorMessage: "An unexpected error occured",
         };
     }
-    }
+    } 
 
 export const updateJob =async (id:any, jobData:any) => {
     try {

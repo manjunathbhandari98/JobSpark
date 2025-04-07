@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Button,
+  NumberInput,
   TextInput,
   Tooltip,
 } from "@mantine/core";
@@ -21,7 +22,7 @@ import {
 import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
 import { setUser } from "../../Slices/UserSlice";
-import { log } from "console";
+import { updateProfile } from "../../Services/ProfileService";
 
 const ProfileInfo = () => {
   const select = fields;
@@ -30,9 +31,14 @@ const ProfileInfo = () => {
     (state: any) => state.user
   );
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
   const dispatch = useDispatch();
+
+  useEffect(() =>{
+    console.log(profile);
+    
+  },[])
 
   // Define Forms
   const form = useForm({
@@ -40,6 +46,7 @@ const ProfileInfo = () => {
       jobTitle: "",
       company: "",
       location: "",
+      totalExperience:0
     },
   });
 
@@ -55,6 +62,7 @@ const ProfileInfo = () => {
       jobTitle: profile?.jobTitle || "",
       company: profile?.company || "",
       location: profile?.location || "",
+      totalExperience: profile?.totalExperience || null,
     });
 
     userForm.setValues({
@@ -65,7 +73,7 @@ const ProfileInfo = () => {
   };
 
   // Handle Save
-  const handleSave = () => {
+  const handleSave = async() => {
     const updatedUser = {
       ...user,
       ...userForm.values,
@@ -74,9 +82,15 @@ const ProfileInfo = () => {
       ...profile,
       ...form.values,
     };
-    console.log(updatedUser)
+    try {
+      await updateProfile(updatedProfile);
     dispatch(changeProfile(updatedProfile));
     dispatch(setUser(updatedUser));
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
 
     notifications.show({
       title: "Success",
@@ -107,11 +121,15 @@ const ProfileInfo = () => {
               {...select[1]}
             />
           </div>
+          <div className="flex gap-10 [&>*]:w-1/2">
           <SelectInput
             form={form}
             name="location"
             {...select[2]}
           />
+          <NumberInput hideControls withAsterisk label='Total Experience' {...form.getInputProps('totalExperience')}/>
+          </div>
+          
           <div className="flex gap-5">
             <Button onClick={handleSave}>
               Save
@@ -140,6 +158,10 @@ const ProfileInfo = () => {
             <div className="text-xl">
               <MapPin />
               <div>{profile?.location}</div>
+            </div>
+            <div className="text-xl">
+              <Briefcase/>
+              <div>Experience: {profile?.totalExperience} Years</div>
             </div>
           </div>
           <Tooltip

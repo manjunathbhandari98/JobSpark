@@ -5,8 +5,8 @@ import { SlidersVertical } from "lucide-react";
 const filterOptions = [
   "Relevant",
   "Most Recent",
-  "Salary (Low to High)",
-  "Salary (High to Low)",
+  "Experience (Low to High)",
+  "Experience (High to Low)",
 ];
 
 const Filter = ({

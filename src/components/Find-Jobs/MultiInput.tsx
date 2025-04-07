@@ -8,7 +8,21 @@ import {
   useCombobox,
 } from "@mantine/core";
 
-const MultiInput = (props: any) => {
+interface MultiInputProps {
+  options: string[];
+  title: string;
+  icon: React.ComponentType<any>;
+  onChange: (values: string[]) => void;
+  resetValue: boolean; // Add reset prop
+}
+
+const MultiInput = ({
+  options,
+  title,
+  icon,
+  onChange,
+  resetValue,
+}: MultiInputProps) => {
   const combobox = useCombobox({
     onDropdownClose: () =>
       combobox.resetSelectedOption(),
@@ -25,8 +39,18 @@ const MultiInput = (props: any) => {
   );
 
   useEffect(() => {
-    setData(props.options);
-  }, []);
+    setData(options);
+  }, [options]);
+
+  useEffect(() => {
+    onChange(value);
+  }, [value, onChange]);
+
+  useEffect(() => {
+    if (resetValue) {
+      setValue([]);
+    }
+  }, [resetValue]);
 
   const exactOptionMatch = data.some(
     (item) => item === search
@@ -62,7 +86,7 @@ const MultiInput = (props: any) => {
     </Pill>
   ));
 
-  const options = data
+  const comboboxOptions = data
     .filter((item) =>
       item
         .toLowerCase()
@@ -96,11 +120,6 @@ const MultiInput = (props: any) => {
             <Combobox.Chevron size="lg" />
           }
           onClick={() => combobox.openDropdown()}
-          leftSection={
-            <div className="bg-gray-600 text-green-500 rounded-full p-2 mr-2">
-              <props.icon size={18} />
-            </div>
-          }
         >
           <Pill.Group>
             {values}
@@ -109,7 +128,6 @@ const MultiInput = (props: any) => {
                 +{value.length - 1} more
               </Pill>
             )}
-
             <Combobox.EventsTarget>
               <PillsInput.Field
                 onFocus={() =>
@@ -119,7 +137,7 @@ const MultiInput = (props: any) => {
                   combobox.closeDropdown()
                 }
                 value={search}
-                placeholder={props.title}
+                placeholder={title}
                 onChange={(event) => {
                   combobox.updateSelectedOptionIndex();
                   setSearch(
@@ -149,21 +167,19 @@ const MultiInput = (props: any) => {
           onChange={(event) =>
             setSearch(event.currentTarget.value)
           }
-          placeholder={`Search ${props.title}`}
+          placeholder={`Search ${title}`}
         />
         <Combobox.Options>
-          {options}
-
+          {comboboxOptions}
           {!exactOptionMatch &&
             search.trim().length > 0 && (
               <Combobox.Option value="$create">
                 + Create {search}
               </Combobox.Option>
             )}
-
           {exactOptionMatch &&
             search.trim().length > 0 &&
-            options.length === 0 && (
+            comboboxOptions.length === 0 && (
               <Combobox.Empty>
                 Nothing found
               </Combobox.Empty>

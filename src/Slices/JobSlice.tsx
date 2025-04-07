@@ -60,16 +60,31 @@ const jobSlice = createSlice({
       state.jobs.push(action.payload); // Update state
     },
 
+    // JobSlice.js - Simplified editJob
+    // In JobSlice.js
     editJob: (state, action) => {
-      updateJob(
-        action.payload.id,
-        action.payload
+      const updatedJob = action.payload;
+      const index = state.jobs.findIndex(
+        (job) => job.id === updatedJob.id
       );
-      state.jobs = state.jobs.map((job) =>
-        job.id === action.payload.id
-          ? action.payload
-          : job
-      );
+
+      if (index !== -1) {
+        // Create a completely new array
+        const newJobs = [...state.jobs];
+        // Replace the item at the index with the updated one
+        newJobs[index] = updatedJob;
+        // Assign the new array to the state
+        state.jobs = newJobs;
+      }
+      // If using Redux Toolkit/Immer, you would just do:
+      // state.jobs[index] = updatedJob;
+
+      // Update selectedJob if necessary
+      if (
+        state.selectedJob?.id === updatedJob.id
+      ) {
+        state.selectedJob = updatedJob; // Immer handles this too if used
+      }
     },
 
     removeJob: (state, action) => {
@@ -78,6 +93,34 @@ const jobSlice = createSlice({
       state.jobs = state.jobs.filter(
         (job) => job.id !== action.payload // Ensure correct comparison
       );
+    },
+
+    updateApplicantStatus: (state, action) => {
+      const { applicantId, newStatus } =
+        action.payload;
+      const jobToUpdate = state.jobs.find(
+        (job) => job.id === state.selectedJob?.id
+      );
+
+      if (jobToUpdate) {
+        jobToUpdate.applicants =
+          jobToUpdate.applicants.map((app) =>
+            app.id === applicantId
+              ? { ...app, status: newStatus }
+              : app
+          );
+      }
+
+      // Also update selectedJob if it's set
+      if (state.selectedJob) {
+        state.selectedJob.applicants =
+          state.selectedJob.applicants.map(
+            (app) =>
+              app.id === applicantId
+                ? { ...app, status: newStatus }
+                : app
+          );
+      }
     },
   },
 });
@@ -88,6 +131,7 @@ export const {
   addJob,
   editJob,
   removeJob,
+  updateApplicantStatus,
 } = jobSlice.actions;
 
 export default jobSlice.reducer;

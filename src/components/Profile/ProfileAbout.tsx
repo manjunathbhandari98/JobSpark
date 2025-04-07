@@ -14,11 +14,12 @@ import {
 } from "react-redux";
 import { changeProfile } from "../../Slices/ProfileSlice";
 import { notifications } from "@mantine/notifications";
+import { updateProfile } from "../../Services/ProfileService";
 
 const ProfileAbout = () => {
   const [edit, setEdit] = useState(false);
   const profile = useSelector(
-    (state: any) => state.profile
+    (state: any) => state.profile.selectedProfile
   );
   const dispatch = useDispatch();
 
@@ -38,21 +39,38 @@ const ProfileAbout = () => {
     setEdit(!edit);
   };
 
-  const handleSave = () =>{
+  const handleSave = async () => {
     const updatedProfile = {
-        ...profile,
-        about: form.getValues().about, // Get latest value
-      };
+      ...profile,
+      about: form.values.about,
+    };
 
-      dispatch(changeProfile(updatedProfile));
+    try {
+     await updateProfile(
+        updatedProfile
+      ); // Get the updated profile from API
+      
+      dispatch(changeProfile(updatedProfile)); // Use updated version from backend (if backend modified anything)
 
       notifications.show({
         title: "Success",
-        message: "Profile Updated Successfully",
+        message: "Profile updated successfully",
         color: "greenTheme.5",
       });
-      setEdit(false)
-  }
+      setEdit(false);
+    } catch (error) {
+      console.error(
+        "Error updating profile:",
+        error
+      );
+      notifications.show({
+        title: "Error",
+        message: "Failed to update profile",
+        color: "redTheme.5",
+      });
+    }
+  };
+
 
   return (
     <div className="pt-5 space-y-5">

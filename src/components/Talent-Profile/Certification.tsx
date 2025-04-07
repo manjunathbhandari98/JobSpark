@@ -1,3 +1,6 @@
+import { formatDateToMonthYear } from "../../Utils/dateFormater";
+
+
 const Certification = (props: any) => {
   return (
     <div className="flex justify-between w-full">
@@ -10,7 +13,7 @@ const Certification = (props: any) => {
             <img
               src={`/Icons/${props.issuer}.png`}
               alt=""
-              className="h-8"
+              className="h-8 w-8"
             />
           </div>
           {/* certificate */}
@@ -27,7 +30,7 @@ const Certification = (props: any) => {
 
       {/* issued date */}
       <div className="space-y-1 text-end">
-        <div>Issued {props.issuedDate}</div>
+        <div>Issued on {formatDateToMonthYear(props.issueDate)}</div>
         <div>ID: {props.certificateId}</div>
       </div>
     </div>

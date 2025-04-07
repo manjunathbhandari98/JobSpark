@@ -133,3 +133,44 @@ export const resetPassword = async(email:any,password:any) =>{
   }
 }
 
+export const getAllUsers = async() =>{
+  try {
+    const response = await axios.get(`${BASE_URL}/users`);
+    return response.data;
+  } catch (e) {
+    if(axios.isAxiosError(e)){
+      throw(e.response?.data || {
+        errorMessage: 'Invalid Data'
+      })
+    }
+    throw{
+      errorMessage: 'An unexpected error occured'
+    }
+  }
+}
+
+export const updateApplicantStatusAPI = async (
+  jobId: number,
+  applicantId: number,
+  status: string
+) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/jobs/${jobId}/applicants/${applicantId}/status`,
+      { status }
+    );
+    return response;
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      throw (
+        e.response?.data || {
+          errorMessage: "Invalid Data",
+        }
+      );
+    }
+    throw {
+      errorMessage:
+        "An unexpected error occurred",
+    };
+  }
+};
