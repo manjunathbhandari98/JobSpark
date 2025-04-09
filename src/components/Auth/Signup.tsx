@@ -5,6 +5,7 @@ import {
   PasswordInput,
   Radio,
   TextInput,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconAt } from "@tabler/icons-react";
@@ -21,6 +22,8 @@ import { notifications } from "@mantine/notifications";
 
 const Signup = () => {
   const navigate = useNavigate();
+    const { colorScheme } = useMantineColorScheme();
+    const isDark = colorScheme === "dark";
   const [visible, { toggle }] =
     useDisclosure(false);
   const [loading, setLoading] = useState(false); // ✅ Added loading state
@@ -146,11 +149,12 @@ const Signup = () => {
   };
 
   return (
-    <div className="px-20 w-full flex flex-col gap-3">
-      <div className="text-xl font-medium">
+    <div className="w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto px-4 sm:px-6 md:px-12 py-10">
+      <div className="text-2xl font-semibold mb-6 text-center">
         Create Account
       </div>
-      <div className="form flex flex-col gap-4">
+
+      <div className="form flex flex-col gap-5">
         <TextInput
           label="Full Name"
           name="name"
@@ -160,6 +164,7 @@ const Signup = () => {
           withAsterisk
           error={formError.name}
         />
+
         <TextInput
           leftSection={<IconAt size={18} />}
           label="Email"
@@ -170,6 +175,7 @@ const Signup = () => {
           withAsterisk
           error={formError.email}
         />
+
         <PasswordInput
           leftSection={<Lock size={18} />}
           label="Password"
@@ -182,6 +188,7 @@ const Signup = () => {
           withAsterisk
           error={formError.password}
         />
+
         <PasswordInput
           leftSection={<Lock size={18} />}
           label="Confirm Password"
@@ -194,6 +201,7 @@ const Signup = () => {
           withAsterisk
           error={formError.confirmPassword}
         />
+
         <Radio.Group
           name="accountType"
           label="You are"
@@ -206,18 +214,53 @@ const Signup = () => {
           }
           withAsterisk
         >
-          <Group className="[&>*]:px-6 [&>*]:py-4 [&>*]:border [&>*]:rounded-lg [&>*]:border-green-500 [&>*]:hover:bg-gray-800/50">
-            <Radio
-              value="APPLICANT"
-              label="Employee"
-            />
-            <Radio
-              value="EMPLOYER"
-              label="Employer"
-            />
+          <Group className="flex flex-col sm:flex-row gap-3 mt-2">
+            {/* Apply styling to the wrapper div */}
+            <div
+              className={`flex-1 px-4 py-3 border rounded-lg cursor-pointer border-green-500 transition ${
+                data.accountType === "APPLICANT"
+                  ? isDark
+                    ? "bg-gray-700"
+                    : "bg-gray-200"
+                  : "" // Optional: Add selected state style
+              } ${
+                isDark
+                  ? "hover:bg-gray-900"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              <Radio
+                value="APPLICANT"
+                label="Employee"
+                // Ensure label click works - no className needed here
+              />
+            </div>
+
+            {/* Apply styling to the wrapper div */}
+            <div
+              className={`flex-1 px-4 py-3 border rounded-lg cursor-pointer border-green-500 transition ${
+                data.accountType === "EMPLOYER"
+                  ? isDark
+                    ? "bg-gray-700"
+                    : "bg-gray-200"
+                  : "" // Optional: Add selected state style
+              } ${
+                isDark
+                  ? "hover:bg-gray-900"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              <Radio
+                value="EMPLOYER"
+                label="Employer"
+                // Ensure label click works - no className needed here
+              />
+            </div>
           </Group>
         </Radio.Group>
+
         <Button
+          fullWidth
           color="greenTheme.5"
           className="!py-2 !text-black"
           onClick={handleSignup}
@@ -230,14 +273,14 @@ const Signup = () => {
             />
           ) : (
             "Sign Up"
-          )}{" "}
-          {/* ✅ Show loader */}
+          )}
         </Button>
-        <div className="flex gap-3 justify-center">
+
+        <div className="text-center text-sm">
           Have an Account?{" "}
           <Link
             to="?mode=login"
-            className="text-green-500"
+            className="text-green-500 font-medium hover:underline"
           >
             Login
           </Link>

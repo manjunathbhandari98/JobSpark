@@ -31,11 +31,6 @@ const JobApply = () => {
     (state: any) => state.user
   );
 
-  // Check if the job is already saved by matching the job ID with saved jobs
-  const isJobSaved = user.savedJobs?.includes(
-    selectedJob?.id
-  );
-
   const form = useForm({
     mode: "controlled",
     initialValues: {
@@ -127,7 +122,7 @@ const JobApply = () => {
   };
 
   return (
-    <div className="py-4 flex flex-col gap-5 w-2/3 mx-auto">
+    <div className="relative px-4 py-6 max-w-3xl w-full mx-auto">
       <LoadingOverlay
         visible={submit}
         zIndex={1000}
@@ -140,8 +135,8 @@ const JobApply = () => {
 
       {/* Company Info */}
       {selectedJob && (
-        <div className="flex gap-3 items-center">
-          <div className="bg-gray-700 rounded-xl p-2">
+        <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+          <div className="bg-gray-700 rounded-xl p-3">
             <img
               src={`/Icons/${String(
                 selectedJob.company || "default"
@@ -150,18 +145,16 @@ const JobApply = () => {
               className="h-14"
             />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col text-center sm:text-left gap-1">
             <div className="font-medium text-xl">
-              {typeof selectedJob.jobTitle ===
-              "string"
-                ? selectedJob.jobTitle
-                : "Job Title Unavailable"}
+              {selectedJob.jobTitle ||
+                "Job Title Unavailable"}
             </div>
-            <div className="text-sm">
+            <div className="text-sm text-gray-500">
               {selectedJob.company ||
                 "Company Name Unavailable"}{" "}
-              •{" "}
-              Posted{' '}{getRelativeTime(
+              • Posted{" "}
+              {getRelativeTime(
                 selectedJob.postTime
               )}{" "}
               •{" "}
@@ -176,17 +169,17 @@ const JobApply = () => {
         </div>
       )}
 
-      <Divider size="xs" />
+      <Divider className="my-4" />
 
       {/* Application Form */}
-      <div className="py-4 flex flex-col gap-4">
-        <div className="flex justify-between">
+      <div className="py-4 flex flex-col gap-5">
+        <div className="flex justify-between items-center">
           <div className="font-semibold text-xl">
             Submit Your Application
           </div>
           {preview && (
             <button
-              className="cursor-pointer"
+              className="cursor-pointer text-greenTheme-5"
               onClick={handlePreview}
             >
               <Edit />
@@ -242,29 +235,34 @@ const JobApply = () => {
           {...form.getInputProps("coverLetter")}
         />
 
-        <Button
-          variant={
-            !preview ? "outline" : "filled"
-          }
-          size="md"
-          color="greenTheme.4"
-          onClick={
-            preview ? handleSubmit : handlePreview
-          }
-        >
-          {preview ? (
-            submit ? (
-              <Loader
-                color="blue"
-                type="dots"
-              />
+        <div className="w-full">
+          <Button
+            className="w-full md:w-auto"
+            variant={
+              !preview ? "outline" : "filled"
+            }
+            size="md"
+            color="greenTheme.4"
+            onClick={
+              preview
+                ? handleSubmit
+                : handlePreview
+            }
+          >
+            {preview ? (
+              submit ? (
+                <Loader
+                  color="blue"
+                  type="dots"
+                />
+              ) : (
+                "Submit"
+              )
             ) : (
-              "Submit"
-            )
-          ) : (
-            "Preview"
-          )}
-        </Button>
+              "Preview"
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

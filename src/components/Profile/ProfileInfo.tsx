@@ -35,18 +35,16 @@ const ProfileInfo = () => {
   );
   const dispatch = useDispatch();
 
-  useEffect(() =>{
+  useEffect(() => {
     console.log(profile);
-    
-  },[])
+  }, []);
 
-  // Define Forms
   const form = useForm({
     initialValues: {
       jobTitle: "",
       company: "",
       location: "",
-      totalExperience:0
+      totalExperience: 0,
     },
   });
 
@@ -56,13 +54,13 @@ const ProfileInfo = () => {
     },
   });
 
-  // Handle Edit
   const handleEdit = () => {
     form.setValues({
       jobTitle: profile?.jobTitle || "",
       company: profile?.company || "",
       location: profile?.location || "",
-      totalExperience: profile?.totalExperience || null,
+      totalExperience:
+        profile?.totalExperience || null,
     });
 
     userForm.setValues({
@@ -72,8 +70,7 @@ const ProfileInfo = () => {
     setEdit(true);
   };
 
-  // Handle Save
-  const handleSave = async() => {
+  const handleSave = async () => {
     const updatedUser = {
       ...user,
       ...userForm.values,
@@ -82,15 +79,14 @@ const ProfileInfo = () => {
       ...profile,
       ...form.values,
     };
+
     try {
       await updateProfile(updatedProfile);
-    dispatch(changeProfile(updatedProfile));
-    dispatch(setUser(updatedUser));
+      dispatch(changeProfile(updatedProfile));
+      dispatch(setUser(updatedUser));
     } catch (error) {
       console.log(error);
-      
     }
-    
 
     notifications.show({
       title: "Success",
@@ -102,35 +98,51 @@ const ProfileInfo = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="w-full">
       {edit ? (
         <div className="flex flex-col w-full gap-5">
           <TextInput
             label="Full Name"
             {...userForm.getInputProps("name")}
           />
-          <div className="flex gap-10 [&>*]:w-1/2">
-            <SelectInput
-              form={form}
-              name="jobTitle"
-              {...select[0]}
-            />
-            <SelectInput
-              form={form}
-              name="company"
-              {...select[1]}
-            />
+          <div className="flex flex-col md:flex-row gap-4 md:gap-10">
+            <div className="w-full md:w-1/2">
+              <SelectInput
+                form={form}
+                name="jobTitle"
+                {...select[0]}
+              />
+            </div>
+            <div className="w-full md:w-1/2">
+              <SelectInput
+                form={form}
+                name="company"
+                {...select[1]}
+              />
+            </div>
           </div>
-          <div className="flex gap-10 [&>*]:w-1/2">
-          <SelectInput
-            form={form}
-            name="location"
-            {...select[2]}
-          />
-          <NumberInput hideControls withAsterisk label='Total Experience' {...form.getInputProps('totalExperience')}/>
+
+          <div className="flex flex-col md:flex-row gap-4 md:gap-10">
+            <div className="w-full md:w-1/2">
+              <SelectInput
+                form={form}
+                name="location"
+                {...select[2]}
+              />
+            </div>
+            <div className="w-full md:w-1/2">
+              <NumberInput
+                hideControls
+                withAsterisk
+                label="Total Experience"
+                {...form.getInputProps(
+                  "totalExperience"
+                )}
+              />
+            </div>
           </div>
-          
-          <div className="flex gap-5">
+
+          <div className="flex flex-wrap gap-3">
             <Button onClick={handleSave}>
               Save
             </Button>
@@ -144,26 +156,33 @@ const ProfileInfo = () => {
           </div>
         </div>
       ) : (
-        <div className="flex w-full justify-between">
-          <div className="[&>*]:flex [&>*]:gap-2 space-y-2">
-            <div className="font-bold text-3xl">
+        <div className="flex flex-col sm:flex-row w-full justify-between gap-4 sm:items-start">
+          <div className="[&>*]:flex [&>*]:gap-2 space-y-2 text-gray-800 dark:text-white">
+            <div className="font-bold text-2xl sm:text-3xl">
               {user?.name}
             </div>
-            <div className="text-xl">
-              <Briefcase />
-              <div>{profile?.jobTitle}</div>
-              <Dot />
-              <div>{profile?.company}</div>
+
+            <div className="text-lg sm:text-xl flex flex-wrap items-center gap-2">
+              <Briefcase className="w-5 h-5" />
+              <span>{profile?.jobTitle}</span>
+              <Dot className="w-5 h-5" />
+              <span>{profile?.company}</span>
             </div>
-            <div className="text-xl">
-              <MapPin />
-              <div>{profile?.location}</div>
+
+            <div className="text-lg sm:text-xl flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              <span>{profile?.location}</span>
             </div>
-            <div className="text-xl">
-              <Briefcase/>
-              <div>Experience: {profile?.totalExperience} Years</div>
+
+            <div className="text-lg sm:text-xl flex items-center gap-2">
+              <Briefcase className="w-5 h-5" />
+              <span>
+                Experience:{" "}
+                {profile?.totalExperience} Years
+              </span>
             </div>
           </div>
+
           <Tooltip
             label="Edit"
             withArrow
@@ -173,6 +192,7 @@ const ProfileInfo = () => {
               size="lg"
               color="green"
               onClick={handleEdit}
+              className="self-start"
             >
               <IconPencil size={20} />
             </ActionIcon>

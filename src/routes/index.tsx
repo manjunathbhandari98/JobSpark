@@ -6,6 +6,7 @@ import RoutePaths from "./RoutePath";
 import EditJob from "../components/Manage-Jobs/EditJob";
 import { Loader } from "@mantine/core";
 import LoadingScreen from '../Utils/LoadingScreen'
+import ProfileOptions from "../components/common/ProfileOptions";
 
 // Lazy load pages
 const HomePage = lazy(
@@ -82,6 +83,10 @@ const AppRoutes = () => {
           <Route
             path={RoutePaths.AUTH}
             element={<Auth />}
+          />
+          <Route
+            path={RoutePaths.PROFILE_OPTIONS}
+            element={<ProfileOptions />}
           />
         </Route>
 

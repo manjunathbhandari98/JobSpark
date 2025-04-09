@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader } from "@mantine/core";
+import { Loader, useMantineColorScheme } from "@mantine/core";
 
 const LoadingScreen = () => {
   const messages = ["Just a minute...", "Almost there...", "Loading your data...", "Hang tight..."];
@@ -15,8 +15,14 @@ const LoadingScreen = () => {
     return () => clearInterval(interval);
   }, [index]);
 
+  const { colorScheme } = useMantineColorScheme(); 
+    const isDark = colorScheme === "dark";
+
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center z-1000 bg-[#040611] text-white">
+    <div className={`fixed inset-0 flex flex-col items-center justify-center z-1000 ${isDark
+                  ? "bg-[#040611] text-gray-200"
+                  : "bg-gray-200 text-black"
+              }`}>
       <Loader type="bars" />
       <p className="mt-4 text-lg font-medium opacity-0 animate-fadeIn">{currentMessage}</p>
     </div>

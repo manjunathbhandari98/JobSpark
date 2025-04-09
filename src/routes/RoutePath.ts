@@ -13,6 +13,7 @@ const RoutePaths = {
   PROFILE: "/profile",
   SAVED_JOBS: "/saved-jobs",
   EDIT_JOB: "/edit-job",
+  PROFILE_OPTIONS : "/profile-options",
 };
 
 export default RoutePaths;

@@ -8,63 +8,71 @@ import avatar from "../../assets/Images/avatar.png";
 import avatar1 from "../../assets/Images/avatar1.png";
 import avatar2 from "../../assets/Images/avatar2.png";
 import { Search } from "lucide-react";
-import Google from "../../assets/Icons/Google.png";
 
 const Hero = () => {
   return (
-    <div className="flex w-full justify-center items-center px-20">
+    <div className="flex flex-col md:flex-row w-full justify-center items-center px-4 md:px-20 py-10 gap-10">
       {/* Left Side */}
-      <div className="space-y-4 w-[45%]">
+      <div className="space-y-6 w-full md:w-[50%]">
         {/* Header */}
-
-        <div className="font-bold text-6xl gap-5 leading-tight [&>span]:text-green-500">
+        <div className="font-bold text-4xl md:text-6xl leading-tight [&>span]:text-green-500">
           Your <span>Journey</span> to the{" "}
           <span>Perfect Job</span> Starts Here
         </div>
 
         {/* tagline */}
-
-        <div className="text-xl font-semibold">
+        <div className="text-base md:text-xl font-semibold">
           <span>
             Find Opportunities That Align with
             Your Goals and Create
           </span>{" "}
-          <span className="mt-4">
+          <span className="block mt-2">
             a Life You Love.
           </span>
         </div>
 
         {/* Search bar */}
         <div>
-          <div className="flex pt-5 gap-4 w-full">
+          <div className="flex flex-col sm:flex-row pt-5 gap-4 w-full">
             <TextInput
-              className="bg-gray-900 p-2 rounded-xl text-white font-semibold [&_input]:!text-white"
+              className="p-2 rounded-xl border font-semibold  flex-1"
               label="Job Title"
               variant="unstyled"
               placeholder="Software Developer"
             />
             <TextInput
-              className="bg-gray-900 p-2 rounded-xl text-white font-semibold [&_input]:!text-white"
+              className="p-2 rounded-xl border font-semibold  flex-1"
               label="Job Type"
               variant="unstyled"
               placeholder="Fulltime"
             />
-            <button className="bg-green-500 p-4 cursor-pointer rounded-xl hover:bg-green-600">
-              <Search size={50} />
+            <button className="bg-green-500 p-4 rounded-xl hover:bg-green-600 flex items-center justify-center text-white font-semibold">
+              {/* Icon for medium and up */}
+              <Search
+                size={30}
+                className="hidden sm:block"
+              />
+
+              {/* Text for small screens */}
+              <span className="block sm:hidden text-sm">
+                SEARCH
+              </span>
             </button>
           </div>
         </div>
       </div>
-      {/* Right Side */}
-      <div className="w-[60%] flex items-center justify-center">
-        {/* Illustration Image */}
 
-        <div className="w-[30rem] relative">
+      {/* Right Side */}
+      <div className="w-full p-4 md:w-[50%] flex items-center justify-center">
+        <div className="w-full max-w-md relative">
           <img
             src={Illustration}
             alt="illustration"
+            className="w-full h-auto"
           />
-          <div className="w-fit absolute top-[30%] -left-10 border-green-400 border rounded-lg p-3 backdrop-blur-md">
+
+          {/* Left popup */}
+          <div className="absolute  top-[30%] -left-6 sm:-left-12 border-green-400 border rounded-lg p-3 backdrop-blur-md bg-white/10">
             <div className="text-sm flex gap-2 items-center">
               <div className="google bg-gray-900 p-2 rounded-lg">
                 <img
@@ -74,21 +82,23 @@ const Hero = () => {
                   width={20}
                 />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col text-white">
                 <div className="role text-md font-semibold">
                   Software Engineer
                 </div>
-                <div className="location">
+                <div className="location text-sm">
                   Bengaluru
                 </div>
               </div>
             </div>
-            <div className="flex justify-between gap-3 p-1 text-sm mt-2">
+            <div className="flex justify-between gap-3 p-1 text-sm mt-2 text-white">
               <div>1 day ago</div>
               <div>100+ Applicants</div>
             </div>
           </div>
-          <div className="w-fit absolute top-[50%] -right-10 border-green-400 border rounded-lg p-3 backdrop-blur-md">
+
+          {/* Right popup */}
+          <div className="absolute top-[55%] -right-6 sm:-right-10 border-green-400 border rounded-lg p-3 backdrop-blur-md bg-white/10">
             <div className="text-center text-gray-100 mb-1 font-semibold text-md">
               10K+ got job
             </div>

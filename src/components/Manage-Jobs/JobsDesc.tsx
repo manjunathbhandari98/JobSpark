@@ -1,4 +1,8 @@
-import { Badge, Tabs } from "@mantine/core";
+import {
+  Badge,
+  Tabs,
+  useMantineColorScheme,
+} from "@mantine/core";
 import JobDesc from "../Job-Desc/JobDesc";
 import TalentCard from "../Find-Talents/TalentCard";
 import {
@@ -45,6 +49,8 @@ const ApplicantsOverview = () => {
     (state: any) => state.job.selectedJob
   );
   const dispatch = useDispatch();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
 
   useEffect(() => {
     const fetchProfilesAndUsers = async () => {
@@ -127,13 +133,13 @@ const ApplicantsOverview = () => {
         status,
       })
     );
-  }; 
+  };
 
   const renderApplicantList = (
     list: Profile[],
     status?: string
   ) => (
-    <div className="py-4 mt-5 grid grid-cols-2 gap-6">
+    <div className="py-4 mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {list.map((applicant, index) => {
         const user = users.find(
           (u) => u.profileId === applicant.id
@@ -159,10 +165,16 @@ const ApplicantsOverview = () => {
   if (!selectedJob) return <div>Loading...</div>;
 
   return (
-    <div className="py-4 px-3 w-full">
-      <div className="flex flex-col ml-7 gap-2">
-        <div className="flex gap-4">
-          <div className="font-semibold text-2xl">
+    <div
+      className={`w-full rounded-lg px-4 py-5 ${
+        isDark
+          ? "bg-[#040611] text-gray-200"
+          : "bg-gray-200 text-black"
+      }`}
+    >
+      <div className="flex flex-col gap-2 mb-6">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="text-2xl font-semibold">
             {selectedJob?.jobTitle}
           </div>
           <Badge
@@ -179,99 +191,101 @@ const ApplicantsOverview = () => {
             {selectedJob.jobStatus}
           </Badge>
         </div>
-        <div>{selectedJob.location}</div>
+        <div className="text-sm">
+          {selectedJob.location}
+        </div>
       </div>
 
-      <div className="py-4 mt-4 px-7">
-        <Tabs
-          variant="outline"
-          defaultValue="overview"
+      <Tabs
+        variant="outline"
+        defaultValue="overview"
+      >
+        <Tabs.List className="[&_button]:text-base [&_button]:font-medium [&_button[data-active='true']]:!text-green-500 flex flex-wrap gap-2">
+          <Tabs.Tab value="overview">
+            Overview
+          </Tabs.Tab>
+          <Tabs.Tab value="applicants">
+            Applicants
+          </Tabs.Tab>
+          <Tabs.Tab value="invited">
+            Invited
+          </Tabs.Tab>
+          <Tabs.Tab value="offered">
+            Offered
+          </Tabs.Tab>
+          <Tabs.Tab value="accepted">
+            Accepted
+          </Tabs.Tab>
+          <Tabs.Tab value="rejected">
+            Rejected
+          </Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel
+          value="overview"
+          className="mt-5"
         >
-          <Tabs.List className="[&_button]:!text-xl [&_button]:!font-semibold [&_button[data-active='true']]:!text-green-500">
-            <Tabs.Tab value="overview">
-              Overview
-            </Tabs.Tab>
-            <Tabs.Tab value="applicants">
-              Applicants
-            </Tabs.Tab>
-            <Tabs.Tab value="invited">
-              Invited
-            </Tabs.Tab>
-            <Tabs.Tab value="offered">
-              Offered
-            </Tabs.Tab>
-            <Tabs.Tab value="accepted">
-              Accepted
-            </Tabs.Tab>
-            <Tabs.Tab value="rejected">
-              Rejected
-            </Tabs.Tab>
-          </Tabs.List>
+          <JobDesc
+            edit
+            {...selectedJob}
+          />
+        </Tabs.Panel>
 
-          <Tabs.Panel
-            value="overview"
-            className="[&>div]:w-full"
-          >
-            <JobDesc
-              edit
-              {...selectedJob}
-            />
-          </Tabs.Panel>
+        <Tabs.Panel value="applicants">
+          {profileList.length === 0 ? (
+            <div className="py-5 text-center text-sm">
+              No Applicants Yet
+            </div>
+          ) : (
+            renderApplicantList(profileList)
+          )}
+        </Tabs.Panel>
 
-          <Tabs.Panel value="applicants">
-            {profileList.length === 0 ? (
-              <div className="py-5">
-                No Applicants Yet
-              </div>
-            ) : (
-              renderApplicantList(profileList)
-            )}
-          </Tabs.Panel>
+        <Tabs.Panel value="invited">
+          <div className="py-5 text-center text-sm">
+            No Invited Applicants
+          </div>
+        </Tabs.Panel>
 
-          <Tabs.Panel value="invited">
-            <div className="py-4 mt-5 grid grid-cols-2 gap-6 "></div>
-          </Tabs.Panel>
+        <Tabs.Panel value="offered">
+          {offeredProfiles.length === 0 ? (
+            <div className="py-5 text-center text-sm">
+              No Offers Yet
+            </div>
+          ) : (
+            renderApplicantList(
+              offeredProfiles,
+              "OFFERED"
+            )
+          )}
+        </Tabs.Panel>
 
-          <Tabs.Panel value="offered">
-            {offeredProfiles.length === 0 ? (
-              <div className="py-5">
-                No Offers Yet
-              </div>
-            ) : (
-              renderApplicantList(
-                offeredProfiles,
-                "OFFERED"
-              )
-            )}
-          </Tabs.Panel>
+        <Tabs.Panel value="accepted">
+          {acceptedProfiles.length === 0 ? (
+            <div className="py-5 text-center text-sm">
+              No Accepted Applicants
+            </div>
+          ) : (
+            renderApplicantList(
+              acceptedProfiles,
+              "ACCEPTED"
+            )
+          )}
+        </Tabs.Panel>
 
-          <Tabs.Panel value="accepted">
-            {acceptedProfiles.length === 0 ? (
-              <div className="py-5">
-                No Accepted Applicants
-              </div>
-            ) : (
-              renderApplicantList(
-                acceptedProfiles,
-                "ACCEPTED"
-              )
-            )}
-          </Tabs.Panel>
-
-          <Tabs.Panel value="rejected">
-            {rejectedProfiles.length === 0 ? (
-              <div className="py-5">
-                No Rejected Applicants
-              </div>
-            ) : (
-              renderApplicantList(
-                rejectedProfiles,
-                "REJECTED"
-              )
-            )}
-          </Tabs.Panel>
-        </Tabs>
-      </div>
+        <Tabs.Panel value="rejected">
+          {rejectedProfiles.length === 0 ? (
+            <div className="py-5 text-center text-sm">
+              No Rejected Applicants
+            </div>
+          ) : (
+            renderApplicantList( 
+              rejectedProfiles,
+              "REJECTED"
+            )
+          )}
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 };

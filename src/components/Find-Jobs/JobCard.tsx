@@ -1,5 +1,5 @@
 import { Bookmark, Clock, BookmarkCheck } from "lucide-react";
-import { Divider,Button, Tooltip } from "@mantine/core";
+import { Divider,Button, Tooltip, useMantineColorScheme } from "@mantine/core";
 import {useNavigate } from "react-router-dom";
 import {getRelativeTime} from '../../Utils/dateUtils'
 import {useDispatch} from "react-redux";
@@ -13,14 +13,24 @@ const JobCard = (data: any) => {
   const handleNavigate = () =>{ 
     navigate('/job');
     dispatch(setJob(data))
+    window.scrollTo(0, 0);
   }
 
   const { toggleSavedJob, savedJobs } =
       useSavedJob();
 
+       const { colorScheme } = useMantineColorScheme(); 
+        const isDark = colorScheme === "dark";
+
   return (
     <div className="gap-5">
-      <div className="bg-gray-900 rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500">
+      <div
+        className={`${
+          isDark
+            ? "bg-gray-900 text-gray-200"
+            : "bg-gray-100 text-black"
+        } rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500`}
+      >
         {/* logo, role, bookmark */}
         <div className="flex justify-between">
           <div className="flex gap-2">
@@ -80,11 +90,17 @@ const JobCard = (data: any) => {
 
             return (
               <Tooltip
-                key={index}
+                key={index} 
                 label={text}
                 withArrow
               >
-                <div className="text-sm shadow-2xl bg-gray-700 py-1 px-2 rounded-lg cursor-pointer max-w-[200px] truncate">
+                <div
+                  className={`text-sm shadow-2xl ${
+                    isDark
+                      ? "bg-gray-700 text-gray-200"
+                      : "bg-gray-300 text-black"
+                  }  py-1 px-2 rounded-lg shadow-gray-400 shadow-2xl cursor-pointer max-w-[200px] truncate`}
+                >
                   {truncatedText}
                 </div>
               </Tooltip>

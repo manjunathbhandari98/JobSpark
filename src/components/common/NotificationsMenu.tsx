@@ -8,6 +8,7 @@ import {
   Divider,
   Button,
   Indicator,
+  Stack,
 } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
 import { Bell } from "lucide-react";
@@ -17,7 +18,7 @@ import { markNotificationsAsRead } from "../../Services/NotificationService";
 
 interface Notification {
   id: number;
-  userId: number; // ✅ Needed for API call
+  userId: number;
   message: string;
   action?: string;
   timeStamp: string;
@@ -136,10 +137,17 @@ const NotificationsMenu = ({
                   py={6}
                 >
                   <Group
-                    align="center"
+                    align="flex-start"
                     justify="space-between"
+                    wrap="wrap"
+                    gap="sm"
                   >
-                    <Box style={{ flex: 1 }}>
+                    <Box
+                      style={{
+                        flex: 1,
+                        minWidth: "70%",
+                      }}
+                    >
                       {notification.route ? (
                         <Text
                           size="sm"
@@ -148,6 +156,8 @@ const NotificationsMenu = ({
                             cursor: "pointer",
                             textDecoration:
                               "underline",
+                            wordBreak:
+                              "break-word",
                           }}
                           onClick={() =>
                             handleNavigate(
@@ -163,6 +173,10 @@ const NotificationsMenu = ({
                         <Text
                           size="sm"
                           fw={500}
+                          style={{
+                            wordBreak:
+                              "break-word",
+                          }}
                         >
                           {notification.action}
                         </Text>
@@ -170,6 +184,9 @@ const NotificationsMenu = ({
                       <Text
                         size="xs"
                         c="dimmed"
+                        style={{
+                          wordBreak: "break-word",
+                        }}
                       >
                         {notification.message}
                       </Text>
@@ -188,6 +205,7 @@ const NotificationsMenu = ({
                         leftSection={
                           <IconCheck size={14} />
                         }
+                        style={{ flexShrink: 0 }}
                       >
                         Read
                       </Button>

@@ -1,6 +1,7 @@
 import {
   FileInput,
   Divider,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconPencil } from "@tabler/icons-react";
 import { useEffect } from "react";
@@ -8,7 +9,10 @@ import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { getProfile, updateProfile } from "../../Services/ProfileService";
+import {
+  getProfile,
+  updateProfile,
+} from "../../Services/ProfileService";
 import {
   changeProfile,
   setProfile,
@@ -29,6 +33,7 @@ const Profile = () => {
   const user = useSelector(
     (state: any) => state.user
   );
+  const imageSource = useImage(profile?.picture);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,15 +60,10 @@ const Profile = () => {
         ...profile,
         picture: base64Data,
       };
-
-      // ✅ Save to backend
       const response = await updateProfile(
         updatedImg
       );
-
-      // ✅ Update Redux with response
       dispatch(changeProfile(response.data));
-
       notifications.show({
         title: "Profile Picture Updated",
         message:
@@ -95,51 +95,69 @@ const Profile = () => {
     });
   };
 
-
-  const imageSource = useImage(profile?.picture)
+     const { colorScheme } = useMantineColorScheme(); 
+      const isDark = colorScheme === "dark";
 
   return (
-    <div className="my-10 w-4/5 mx-auto">
-      <div className="mb-1">
-        <div className="relative mb-20">
-          <img
-            src="/Profile/banner.jpg"
-            alt="banner"
-            className="rounded-t-3xl"
-          />
-          <div className="top-22 left-5 absolute p-2 dark:bg-[#040611] light:bg-white rounded-full">
-            <div className="relative w-44 h-44 e-profile">
-              <div className="e-custom-wrapper w-full h-full rounded-full overflow-hidden shadow-md">
-                <img
-                  src={imageSource}
-                  alt="Profile Avatar"
-                  id="custom-img"
-                />
-              </div>
-              <FileInput
-                id="img-upload"
-                className="hidden"
-                accept="image/*" // Accept all image types
-                onChange={handleFileChange}
+    <div className="px-4 sm:px-6 md:px-10 my-10 max-w-screen-lg mx-auto">
+      {/* Banner */}
+      <div className=" mt-25">
+        {/* <img
+          src="/Profile/banner.jpg"
+          alt="banner"
+          className="w-full rounded-t-3xl object-cover max-h-[200px] sm:max-h-[280px]"
+        /> */}
+
+        {/* Profile Image + Info */}
+        <div className="flex flex-col md:flex-row gap-6 md:items-end -mt-24 md:mt-0 md:-translate-y-12">
+          {/* Profile Image */}
+          <div className="relative w-32 sm:w-44 h-32 sm:h-44 mx-auto md:mx-0">
+            <div
+              className={`w-full h-full rounded-full overflow-hidden shadow-md ${
+                isDark
+                  ? "bg-[#040611] text-gray-200"
+                  : "bg-gray-200 text-black"
+              } border-[4px]`}
+              border-white
+              bg-white
+            >
+              <img
+                src={imageSource}
+                alt="Profile Avatar"
+                className="w-full h-full object-cover"
               />
-              <span
-                id="custom-edit"
-                className="e-custom-edit absolute bottom-2 right-2 w-10 h-10 bg-green-500 border-[3px] border-black rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-green-600 transition"
-                onClick={() =>
-                  document
-                    .getElementById("img-upload")
-                    ?.click()
-                }
-              >
-                <IconPencil
-                  size={22}
-                  color="black"
-                />
-              </span>
             </div>
+
+            <FileInput
+              id="img-upload"
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+
+            <span
+              id="custom-edit"
+              className="absolute bottom-2 right-2 w-9 h-9 sm:w-10 sm:h-10 bg-green-500 border-[3px] border-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-green-600 transition"
+              onClick={() =>
+                document
+                  .getElementById("img-upload")
+                  ?.click()
+              }
+            >
+              <IconPencil
+                size={20}
+                color="black"
+              />
+            </span>
+          </div>
+
+          {/* Profile Info */}
+          <div className="flex-1">
+            <ProfileInfo />
           </div>
         </div>
-        <ProfileInfo />
+
+        {/* Other Sections */}
         <Divider
           size="xs"
           className="mt-10"

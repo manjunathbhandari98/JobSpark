@@ -1,4 +1,4 @@
-import { Button, Divider } from "@mantine/core";
+import { Button, Divider, useMantineColorScheme } from "@mantine/core";
 import Experience from "./Experience";
 import {
   Briefcase,
@@ -106,6 +106,9 @@ const ProfileCard = () => {
     return <div>Loading profile...</div>;
   }
 
+  const { colorScheme } = useMantineColorScheme(); 
+        const isDark = colorScheme === "dark";
+
   return (
     <div className="flex gap-5">
       <div className="my-4 w-2/3">
@@ -118,7 +121,10 @@ const ProfileCard = () => {
               alt="banner"
               className="rounded-t-3xl"
             />
-            <div className="top-16 left-5 absolute p-2 dark:bg-[#040611] light:bg-white rounded-full">
+            <div className={`top-16 left-5 absolute p-2 ${isDark
+                  ? "bg-[#040611] text-gray-200"
+                  : "bg-gray-200 text-black"
+              } rounded-full`}>
               <img
                 src={imageSource}
                 alt="profile_pic"

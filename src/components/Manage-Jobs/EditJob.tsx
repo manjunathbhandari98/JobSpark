@@ -1,4 +1,4 @@
-import { Button, TagsInput, Textarea } from "@mantine/core";
+import { Button, TagsInput, Textarea, useMantineColorScheme } from "@mantine/core";
 import { fields } from "../../data/PostJob";
 import { useForm } from "@mantine/form";
 import { useEditor, Editor } from "@tiptap/react";
@@ -24,6 +24,10 @@ const EditJob: React.FC = () => {
     const selectedJob = useSelector(
         (state: any) => state.job.selectedJob
     );
+
+
+       const { colorScheme } = useMantineColorScheme(); 
+        const isDark = colorScheme === "dark";
 
   const form = useForm({
     initialValues: {
@@ -121,17 +125,21 @@ const EditJob: React.FC = () => {
 
 
   return (
-    <div className="px-10 py-3">
-      <div className="text-2xl py-3 font-semibold">
+    <div
+      className={`px-4 md:px-10 py-4 min-h-screen ${
+        isDark
+          ? "bg-[#040611] text-gray-200"
+          : "bg-gray-200 text-black"
+      }`}
+    >
+      <div className="text-2xl py-3 font-semibold text-center md:text-left">
         Post a Job
       </div>
 
-      <div className="flex flex-wrap">
+      {/* Form Fields */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
         {fields.map((item, index) => (
-          <div
-            key={index}
-            className="w-1/2 px-2 space-y-7"
-          >
+          <div key={index}>
             <SelectInput
               {...item}
               form={form}
@@ -141,7 +149,8 @@ const EditJob: React.FC = () => {
         ))}
       </div>
 
-      <div className="px-2">
+      {/* Skills Input */}
+      <div className="mt-6">
         <TagsInput
           withAsterisk
           label="Skills"
@@ -164,14 +173,15 @@ const EditJob: React.FC = () => {
         </span>
       </div>
 
-      <div className="px-2">
+      {/* About TextArea */}
+      <div className="mt-6">
         <Textarea
           withAsterisk
           label="About"
           placeholder="Enter about"
           autosize
-          minRows={4} // Ensures it starts with 4 visible rows
-          maxRows={6} // (Optional) Allows it to expand up to 6 rows before scrolling
+          minRows={4}
+          maxRows={6}
           value={form.values.about}
           onChange={(event) =>
             form.setFieldValue(
@@ -183,42 +193,46 @@ const EditJob: React.FC = () => {
       </div>
 
       {/* Job Description */}
-      <div className="px-2 py-4">
-        <label className="text-sm font-medium">
+      <div className="mt-6">
+        <label className="text-sm font-medium block mb-1">
           Job Details
           <span className="text-red-600 text-sm">
             {" "}
-            *{" "}
+            *
           </span>
         </label>
         <TextEditor editor={editor} />
       </div>
 
-      <div className="flex gap-4 px-2 py-4">
+      {/* Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
         <Button
           variant="light"
           color="greenTheme.4"
           size="md"
           onClick={handleUpdate}
+          className="w-full sm:w-auto"
         >
           Update Job
         </Button>
+
         <Button
           variant="outline"
           color="greenTheme.5"
           size="md"
-          onClick={() => {
-            navigate("/manage-jobs");
-          }}
+          onClick={() => navigate("/manage-jobs")}
+          className="w-full sm:w-auto"
         >
           Cancel
         </Button>
+
         {selectedJob?.jobStatus === "DRAFT" && (
           <Button
-            variant="fillded"
+            variant="filled"
             color="greenTheme.5"
             size="md"
             onClick={activateJob}
+            className="w-full sm:w-auto"
           >
             Activate Job
           </Button>

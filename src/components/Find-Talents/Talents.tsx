@@ -4,7 +4,7 @@ import { getAllProfiles } from "../../Services/ProfileService";
 import SearchBar from "./SearchBar";
 import Filter from "./Filter";
 import { getAllUsers } from "../../Services/UserService";
-import { Button } from "@mantine/core";
+import { Button, useMantineColorScheme } from "@mantine/core";
 import { X } from "lucide-react";
 
 interface Profile {
@@ -54,6 +54,10 @@ const Talents = () => {
     useState<boolean>(false);
   const [resetMultiInput, setResetMultiInput] =
     useState(false); // Add reset state
+      const { colorScheme } =
+        useMantineColorScheme();
+
+      const isDark = colorScheme === "dark";
 
   useEffect(() => {
     const fetchProfilesAndUsers = async () => {
@@ -261,7 +265,13 @@ const Talents = () => {
    selectedFilter !== "Relevant";
 
   return (
-    <div className="p-4">
+    <div
+      className={`p-4 min-h-screen transition-colors  ${
+        isDark
+          ? "bg-[#040611] text-white"
+          : "bg-white text-black"
+      }`}
+    >
       <SearchBar
         onSearch={handleSearch}
         onExperienceChange={
@@ -273,44 +283,41 @@ const Talents = () => {
         onLocationChange={handleLocationChange}
         resetMultiInput={resetMultiInput} // Pass reset prop
       />
-      <div className="flex justify-between mt-4">
-        <div className="flex gap-4">
-          <div className="flex gap-3">
-            <div className="text-3xl font-bold">
+      <div className="flex flex-col md:flex-row justify-between mt-4 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="text-2xl md:text-3xl font-bold">
             Talents
           </div>
           {isFilterApplied && (
-                      <Button
-                        onClick={clearFilter}
-                        radius={50}
-                        variant="outline"
-                        color="red.8"
-                        className="text-red-500 cursor-pointer"
-                      >
-                        Clear Filter
-                        <X size={20} className="ml-4"/>
-                      </Button>
-                    )}
-          </div>
-          
+            <Button
+              onClick={clearFilter}
+              radius={50}
+              variant="outline"
+              color="red"
+              className="text-red-500"
+            >
+              Clear Filter{" "}
+              <X
+                size={18}
+                className="ml-2"
+              />
+            </Button>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Filter
-            onFilter={handleFilter}
-            selectedFilter={selectedFilter}
-          />
-          
-        </div>
+        <Filter
+          onFilter={handleFilter}
+          selectedFilter={selectedFilter}
+        />
       </div>
-      <div className="py-4 mt-5 grid grid-cols-3 gap-4">
+
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-6">
         {filteredProfiles.length > 0 ? (
           filteredProfiles.map(
-            (profile: Profile, index: number) => {
-              const user: User | undefined =
-                users.find(
-                  (user) =>
-                    user.profileId === profile.id
-                );
+            (profile, index) => {
+              const user = users.find(
+                (user) =>
+                  user.profileId === profile.id
+              );
               return (
                 <TalentCard
                   key={index}
@@ -323,7 +330,9 @@ const Talents = () => {
             }
           )
         ) : (
-          <p>No talents found.</p>
+          <p className="col-span-full text-center mt-10">
+            No talents found.
+          </p>
         )}
       </div>
     </div>

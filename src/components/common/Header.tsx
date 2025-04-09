@@ -3,7 +3,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import Logo from "../../assets/Logo";
-import { Button } from "@mantine/core";
+import { Button, Drawer, useMantineColorScheme } from "@mantine/core";
 import NavLinks from "./NavLinks";
 import ProfileMenu from "./ProfileMenu";
 import {
@@ -16,6 +16,7 @@ import { getProfile } from "../../Services/ProfileService";
 import { setProfile } from "../../Slices/ProfileSlice";
 import NotificationsMenu from "./NotificationsMenu";
 import { getNotifications } from "../../Services/NotificationService";
+import { Menu } from "lucide-react"; // Hamburger icon
 
 const Header = () => {
   const location = useLocation();
@@ -29,6 +30,8 @@ const Header = () => {
   );
   const [notifications, setNotifications] =
     useState([]);
+  const [drawerOpened, setDrawerOpened] =
+    useState(false);
 
   const fetchNotifications = async () => {
     try {
@@ -69,32 +72,57 @@ const Header = () => {
     }
   }, [dispatch, user?.id, profile]);
 
+   const { colorScheme } = useMantineColorScheme(); 
+    const isDark = colorScheme === "dark";
   const imageSource = useImage(profile?.picture);
+  if (location.pathname.startsWith("/auth"))
+    return null;
 
-  if (location.pathname === "/auth") return null;
+
 
   return (
-    <div className="w-full flex h-22 text-white justify-between p-5 items-center bg-[#040611]">
-      <div>
+    <div
+      className={`w-full flex justify-between ${
+        isDark
+          ? "bg-[#040611] text-gray-200"
+          : "bg-gray-200 text-black"
+      } p-5 items-center relative`}
+    >
+      {/* Left Side: Logo + Notification */}
+      <div className="flex items-center gap-8">
         <Link to="/">
           <Logo />
         </Link>
+        <div className="flex md:hidden">
+          <NotificationsMenu
+            notifications={notifications}
+            refreshNotifications={
+              fetchNotifications
+            }
+          />
+        </div>
       </div>
 
-      <NavLinks role={user?.accountType} />
+      {/* Desktop Navigation Links */}
+      <div className="hidden md:flex gap-6 font-bold">
+        <NavLinks role={user?.accountType} />
+      </div>
 
-      <div className="flex gap-7 items-center">
-        <NotificationsMenu
-          notifications={notifications}
-          refreshNotifications={
-            fetchNotifications
-          }
-        />
+      {/* Desktop Right-side Actions (Profile/Login) */}
+      <div className="hidden md:flex items-center gap-6">
+        <div className="md:flex hidden">
+          <NotificationsMenu
+            notifications={notifications}
+            refreshNotifications={
+              fetchNotifications
+            }
+          />
+        </div>
         {user ? (
           <ProfileMenu
             image={imageSource}
-            name={user.name}
-            email={user.email}
+            name={user?.name}
+            email={profile?.email}
           />
         ) : (
           <Link to="/auth?mode=login">
@@ -102,6 +130,64 @@ const Header = () => {
           </Link>
         )}
       </div>
+
+      {/* Mobile Menu Icon */}
+      <div className="md:hidden">
+        <Menu
+          size={28}
+          onClick={() => setDrawerOpened(true)}
+          className="cursor-pointer"
+        />
+      </div>
+
+      {/* Side Drawer */}
+      <Drawer
+        opened={drawerOpened}
+        onClose={() => setDrawerOpened(false)}
+        title={<Logo />}
+        padding="md"
+        size="xs"
+        position="right"
+        overlayProps={{ blur: 3 }}
+        withCloseButton
+      >
+        {/* Full height, flex layout */}
+        <div className="flex flex-col h-[85dvh]">
+          {/* Scrollable nav content */}
+          <div className="flex-grow">
+            <NavLinks
+              role={user?.accountType}
+              direction="vertical"
+              onNavigate={() =>
+                setDrawerOpened(false)
+              }
+            />
+          </div>
+
+          {/* Bottom sticky login/profile section */}
+          <div
+            className="pt-4"
+            onClick={() => setDrawerOpened(false)}
+          >
+            {user ? (
+              <ProfileMenu
+                image={imageSource}
+                name={user?.name}
+                email={profile?.email}
+              />
+            ) : (
+              <Link to="/auth?mode=login">
+                <Button
+                  fullWidth
+                  variant="light"
+                >
+                  Login
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 };

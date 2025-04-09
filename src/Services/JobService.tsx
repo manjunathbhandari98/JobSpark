@@ -6,7 +6,13 @@ export const postJob =async (jobData:any) =>{
   try {
     const response =await axios.post(
       `${BASE_URL}/jobs/post`,
-      jobData
+      jobData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
     );
     return response;
   } catch (e) {
@@ -25,7 +31,13 @@ export const postJob =async (jobData:any) =>{
 
 export const getJobs =async () => {
     try {
-        const response =await axios.get(`${BASE_URL}/jobs`);
+        const response =await axios.get(`${BASE_URL}/jobs`,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
         return response;
     } catch (e) {
         if (axios.isAxiosError(e)) {
@@ -43,7 +55,13 @@ export const getJobs =async () => {
 
 export const getJob =async (id:any) => {
     try {
-        const response =await axios.get(`${BASE_URL}/jobs/${id}`);
+        const response =await axios.get(`${BASE_URL}/jobs/${id}`,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
         return response;
     } catch (e) {
         if (axios.isAxiosError(e)) {
@@ -63,7 +81,13 @@ export const updateJob =async (id:any, jobData:any) => {
     try {
         const response =await axios.put(
         `${BASE_URL}/jobs/${id}`,
-        jobData
+        jobData,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
         );
         return response;
     } catch (e) {
@@ -82,7 +106,13 @@ export const updateJob =async (id:any, jobData:any) => {
 
 export const deleteJob =async (id:any) => {
     try {
-        const response =await axios.delete(`${BASE_URL}/jobs/${id}`);
+        const response =await axios.delete(`${BASE_URL}/jobs/${id}`,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+        );
         return response;
     } catch (e) {
         if (axios.isAxiosError(e)) {
@@ -101,7 +131,14 @@ export const deleteJob =async (id:any) => {
 
 export const jobApply = async (id:any, data:any) =>{
   try {
-    const response = await axios.post(`${BASE_URL}/jobs/apply/${id}`,data)
+    const response = await axios.post(`${BASE_URL}/jobs/apply/${id}`,data,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
     return response;
   } catch (e) {
      if (axios.isAxiosError(e)) {
@@ -120,7 +157,13 @@ export const jobApply = async (id:any, data:any) =>{
 
 export const getPostedBy = async(id:any) =>{
   try {
-    const response = await axios.get(`${BASE_URL}/poster/${id}`);
+    const response = await axios.get(`${BASE_URL}/poster/${id}`,
+      {
+        headers:{
+          Authorization:`Bearer ${localStorage.getItem("token")}`,
+        }
+      }
+    );
     return response;
   } catch (e) {
      if (axios.isAxiosError(e)) {

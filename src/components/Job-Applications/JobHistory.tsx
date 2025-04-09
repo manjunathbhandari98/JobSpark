@@ -19,91 +19,86 @@ const JobHistory = () => {
   );
   const { savedJobs } = useSavedJob();
 
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await getJobs();
+        dispatch(setJobs(response.data));
+      } catch (error) {
+        console.error(
+          "Error fetching jobs:",
+          error
+        );
+      }
+    };
 
- useEffect(() => {
-   const fetchJobs = async () => {
-     try {
-       const response = await getJobs();
-       dispatch(setJobs(response.data));
-     } catch (error) {
-       console.error(
-         "Error fetching jobs:",
-         error
-       );
-     }
-   };
+    fetchJobs();
+  }, [dispatch]);
 
-   fetchJobs(); 
-
- }, [dispatch]);
-
-
-
-// Memoized job filters
-const appliedJobs = useMemo(() => {
-  return jobs
-    .map((job: any) => {
-      const applicant = job.applicants?.find(
-        (applicant: any) =>
-          applicant.applicantId === user.id
-      );
-      return applicant
-        ? {
-            ...job,
-            appliedTime: applicant.timeStamp,
-            status: applicant.applicationStatus,
-          }
-        : null;
-    })
-    .filter(Boolean);
-}, [jobs, user.id]);
-
-const filterJobsByStatus = useMemo(
-  () => (status: string) =>
-    jobs
+  const appliedJobs = useMemo(() => {
+    return jobs
       .map((job: any) => {
         const applicant = job.applicants?.find(
           (applicant: any) =>
-            applicant.applicantId === user.id &&
-            applicant.applicationStatus === status
+            applicant.applicantId === user.id
         );
         return applicant
           ? {
               ...job,
-              status: status,
-              statusTime: applicant.timeStamp,
+              appliedTime: applicant.timeStamp,
+              status: applicant.applicationStatus,
             }
           : null;
       })
-      .filter(Boolean),
-  [jobs, user.id]
-);
+      .filter(Boolean);
+  }, [jobs, user.id]);
 
-const offeredJobs = useMemo(
-  () => filterJobsByStatus("OFFERED"),
-  [filterJobsByStatus]
-);
-const acceptedJobs = useMemo(
-  () => filterJobsByStatus("ACCEPTED"),
-  [filterJobsByStatus]
-);
-const rejectedJobs = useMemo(
-  () => filterJobsByStatus("REJECTED"),
-  [filterJobsByStatus]
-);
-const inProgressJobs = useMemo(
-  () => filterJobsByStatus("INTERVIEWING"),
-  [filterJobsByStatus]
-);
+  const filterJobsByStatus = useMemo(
+    () => (status: string) =>
+      jobs
+        .map((job: any) => {
+          const applicant = job.applicants?.find(
+            (applicant: any) =>
+              applicant.applicantId === user.id &&
+              applicant.applicationStatus ===
+                status
+          );
+          return applicant
+            ? {
+                ...job,
+                status: status,
+                statusTime: applicant.timeStamp,
+              }
+            : null;
+        })
+        .filter(Boolean),
+    [jobs, user.id]
+  );
 
+  const offeredJobs = useMemo(
+    () => filterJobsByStatus("OFFERED"),
+    [filterJobsByStatus]
+  );
+  const acceptedJobs = useMemo(
+    () => filterJobsByStatus("ACCEPTED"),
+    [filterJobsByStatus]
+  );
+  const rejectedJobs = useMemo(
+    () => filterJobsByStatus("REJECTED"),
+    [filterJobsByStatus]
+  );
+  const inProgressJobs = useMemo(
+    () => filterJobsByStatus("INTERVIEWING"),
+    [filterJobsByStatus]
+  );
 
   return (
-    <div className="py-4 mt-4 px-7">
+    <div className="py-4 px-4 sm:px-6 lg:px-8">
       <Tabs
         variant="outline"
         defaultValue="applied"
       >
-        <Tabs.List className="[&_button]:!text-xl [&_button]:!font-semibold [&_button[data-active='true']]:!text-green-500">
+        <Tabs.List className="flex flex-wrap gap-2 overflow-x-auto whitespace-nowrap [&_button]:!text-base sm:[&_button]:!text-lg [&_button]:!font-semibold [&_button[data-active='true']]:!text-green-500">
           <Tabs.Tab value="applied">
             Applied
           </Tabs.Tab>
@@ -113,7 +108,7 @@ const inProgressJobs = useMemo(
           </Tabs.Tab>
           <Tabs.Tab value="inprogress">
             In Progress
-          </Tabs.Tab>{" "}
+          </Tabs.Tab>
           <Tabs.Tab value="accepted">
             Accepted
           </Tabs.Tab>
@@ -122,9 +117,9 @@ const inProgressJobs = useMemo(
           </Tabs.Tab>
         </Tabs.List>
 
-        <div className="py-4 mt-3">
+        <div className="py-4">
           <Tabs.Panel value="applied">
-            <div className="py-4 mt-5 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
               {appliedJobs.map(
                 (data: any, index: number) => (
                   <Card
@@ -145,7 +140,7 @@ const inProgressJobs = useMemo(
           </Tabs.Panel>
 
           <Tabs.Panel value="saved">
-            <div className="py-4 mt-5 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
               {jobs
                 .filter((job: any) =>
                   savedJobs.includes(job.id)
@@ -163,7 +158,7 @@ const inProgressJobs = useMemo(
           </Tabs.Panel>
 
           <Tabs.Panel value="offered">
-            <div className="py-4 mt-5 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
               {offeredJobs.map(
                 (data: any, index: number) => (
                   <Card
@@ -184,7 +179,7 @@ const inProgressJobs = useMemo(
           </Tabs.Panel>
 
           <Tabs.Panel value="inprogress">
-            <div className="py-4 mt-5 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
               {inProgressJobs.map(
                 (data: any, index: number) => (
                   <Card
@@ -198,7 +193,7 @@ const inProgressJobs = useMemo(
           </Tabs.Panel>
 
           <Tabs.Panel value="accepted">
-            <div className="py-4 mt-5 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
               {acceptedJobs.map(
                 (data: any, index: number) => (
                   <Card
@@ -212,7 +207,7 @@ const inProgressJobs = useMemo(
           </Tabs.Panel>
 
           <Tabs.Panel value="rejected">
-            <div className="py-4 mt-5 grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
               {rejectedJobs.map(
                 (data: any, index: number) => (
                   <Card

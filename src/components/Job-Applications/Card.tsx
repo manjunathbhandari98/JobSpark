@@ -7,6 +7,7 @@ import {
   Badge,
   Button,
   Divider,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { getRelativeTime } from "../../Utils/dateUtils";
@@ -131,23 +132,35 @@ const Card = (data: any) => {
     );
   };
 
+
+         const { colorScheme } = useMantineColorScheme(); 
+          const isDark = colorScheme === "dark";
+ 
   return (
     <div className="gap-5">
-      <div className="bg-gray-900 rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500">
-        <div className="flex justify-between">
+      <div
+        className={`${
+          isDark
+            ? "bg-gray-900 text-gray-200"
+            : "bg-gray-100 text-black"
+        } rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500`}
+      >
+        {" "}
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0">
           <div className="flex gap-2">
             <div className="bg-gray-800 p-2 rounded-xl">
               <img
                 src={`/Icons/${data.company}.png`}
                 alt={data.company}
-                className="h-10"
+                className="h-10 w-10 object-contain"
               />
             </div>
             <div>
-              <div className="text-xl font-semibold truncate max-w-[14ch] overflow-hidden whitespace-nowrap">
+              <div className="text-lg sm:text-xl font-semibold truncate max-w-[20ch] sm:max-w-[14ch]">
                 {data.jobTitle}
               </div>
-              <div className="text-sm">
+              <div className="text-sm ">
                 {data.company} ·{" "}
                 {Array.isArray(data.applicants)
                   ? data.applicants.length
@@ -156,7 +169,7 @@ const Card = (data: any) => {
               </div>
             </div>
           </div>
-          <div className="cursor-pointer">
+          <div className="self-end sm:self-center">
             {savedJobs?.includes(data.id) ? (
               <BookmarkCheck
                 onClick={() =>
@@ -174,8 +187,8 @@ const Card = (data: any) => {
             )}
           </div>
         </div>
-
-        <div className="flex justify-between py-4">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 justify-start py-4">
           {[
             data.experience,
             data.jobType,
@@ -183,14 +196,18 @@ const Card = (data: any) => {
           ].map((item, index) => (
             <div
               key={index}
-              className="text-sm shadow-2xl bg-gray-700 py-1 px-2 rounded-lg"
+              className={`text-sm ${
+                    isDark
+                      ? "bg-gray-700 text-gray-200"
+                      : "bg-gray-300 text-black"
+                  } py-1 px-2 rounded-lg`}
             >
               {item}
             </div>
           ))}
         </div>
-
-        <div className="text-sm line-clamp-3">
+        {/* Description */}
+        <div className="text-sm  line-clamp-3 mb-2">
           {data.about}
         </div>
         <Divider
@@ -198,33 +215,31 @@ const Card = (data: any) => {
           className="my-3"
           color="white"
         />
-
-        <div className="flex justify-between items-center">
-          <div className="text-xl font-bold">
+        {/* Footer */}
+        <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2">
+          <div className="text-lg font-bold ">
             ₹{data.packageOffered}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center text-sm ">
             <Clock size={18} />
-            <div className="text-sm">
-              {data.applied
-                ? `Applied ${getRelativeTime(
-                    data.appliedTime
-                  )}`
-                : data.saved
-                ? "Saved"
-                : data.offered
-                ? "Interviewed"
-                : "Posted"}
-            </div>
+            {data.applied
+              ? `Applied ${getRelativeTime(
+                  data.appliedTime
+                )}`
+              : data.saved
+              ? "Saved"
+              : data.offered
+              ? "Interviewed"
+              : "Posted"}
           </div>
         </div>
-
-        <div className="my-3 px-4 text-center py-2 text-green-500 rounded-lg font-bold">
+        {/* CTA / Status */}
+        <div className="mt-4">
           {status === "ACCEPTED" ||
           status === "REJECTED" ? (
             renderStatusBadge()
           ) : data.offered ? (
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 color="greenTheme.5"
                 variant="outline"

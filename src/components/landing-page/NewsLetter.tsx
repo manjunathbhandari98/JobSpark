@@ -1,18 +1,21 @@
 const NewsLetter = () => {
   return (
-    <div className="py-20 px-20">
-      <div className="bg-gray-700 rounded-lg flex justify-around p-3">
-        <div className="w-[38%] text-4xl font-bold text-center [&>span]:text-green-500">
-          Never Wants to Miss Any{" "}
+    <div className="py-10 px-4 sm:px-10 lg:px-20">
+      <div className="bg-gray-700 rounded-lg flex flex-col lg:flex-row justify-between items-center gap-6 p-6">
+        {/* Text */}
+        <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center lg:text-left [&>span]:text-green-500 max-w-xl">
+          Never Want to Miss Any{" "}
           <span>Job News?</span>
         </div>
-        <div className="w-[45%] flex bg-gray-600 rounded-xl p-3 text-2xl font-semibold">
+
+        {/* Input + Button */}
+        <div className="w-full lg:w-[45%] flex flex-col sm:flex-row bg-gray-600 rounded-xl overflow-hidden text-lg font-semibold">
           <input
             type="text"
             placeholder="yourmail@mail.com"
-            className="flex-grow px-4 py-2 w-[70%] rounded-l-lg outline-none "
+            className="flex-grow px-4 py-3 outline-none text-base"
           />
-          <button className="bg-green-500 w-[30%] text-center text-white px-4 py-2 rounded-lg hover:bg-green-600">
+          <button className="bg-green-500 text-white px-6 py-3 hover:bg-green-600 transition-all w-full sm:w-auto">
             Subscribe
           </button>
         </div>

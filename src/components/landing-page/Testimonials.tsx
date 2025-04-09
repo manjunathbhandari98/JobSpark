@@ -1,43 +1,38 @@
-import { Star, StarIcon } from "lucide-react";
 import avatar from "../../assets/Images/avatar.png";
 import { testimonials } from "../../data/Data";
 import { Rating } from "@mantine/core";
 
 const Testimonials = () => {
   return (
-    <div className="py-16 px-6 mt-20">
-      <div className="text-center text-4xl font-bold [&>span]:text-green-500">
-        What <span>User</span> says about us?
+    <div className="py-16 px-4 sm:px-10 lg:px-20 mt-20">
+      <div className="text-center text-2xl sm:text-3xl md:text-4xl font-bold [&>span]:text-green-500">
+        What <span>Users</span> Say About Us?
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-7 justify-center items-center mt-15">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-10">
         {testimonials.map((data, index) => (
           <div
             key={index}
-            className="border border-green-500 rounded-2xl p-3"
+            className="border border-green-500 rounded-2xl p-5 shadow hover:shadow-lg transition-all"
           >
-            <div className="flex gap-4">
+            <div className="flex items-center gap-4">
+              <img
+                src={avatar}
+                alt="User Avatar"
+                className="h-14 w-14 rounded-full object-cover"
+              />
               <div>
-                <img
-                  src={avatar}
-                  alt=""
-                  className="h-15 w-15 rounded-full"
-                />
-              </div>
-              <div>
-                <div className="font-bold text-xl">
+                <div className="font-bold text-lg">
                   {data.name}
                 </div>
-                <div>
-                  <Rating
-                    defaultValue={data.rating}
-                  />
-                </div>
+                <Rating
+                  defaultValue={data.rating}
+                />
               </div>
             </div>
-            <div className="text-sm mt-2">
+            <p className="text-sm text-gray-300 mt-4">
               {data.testimonial}
-            </div>
+            </p>
           </div>
         ))}
       </div>

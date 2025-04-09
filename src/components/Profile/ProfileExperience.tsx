@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Tooltip,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconPlus,
@@ -49,9 +50,8 @@ const ProfileExperience = () => {
     try {
       const response = await updateProfile(
         updatedProfile
-      ); // ✅ wait and get data
-      dispatch(changeProfile(response.data)); // ✅ use actual updated profile
-
+      );
+      dispatch(changeProfile(response.data));
       notifications.show({
         title: "Experience updated",
         message: "Experience has been updated",
@@ -72,8 +72,6 @@ const ProfileExperience = () => {
     setEditingIndex(null);
     setAddExp(false);
   };
-
-
 
   const handleDelete = async (index: number) => {
     const updatedExperiences = experiences.filter(
@@ -104,10 +102,16 @@ const ProfileExperience = () => {
     }
   };
 
+
+     const { colorScheme } = useMantineColorScheme(); 
+      const isDark = colorScheme === "dark";
   return (
     <div className="pt-5 space-y-5">
-      <div className="font-bold text-2xl flex justify-between">
-        Experience
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-xl sm:text-2xl">
+          Experience
+        </h2>
         <Tooltip
           label="Add Experience"
           withArrow
@@ -115,6 +119,7 @@ const ProfileExperience = () => {
           <ActionIcon
             variant="filled"
             size="lg"
+            className="bg-green-500 hover:bg-green-600 text-white"
             onClick={() => setAddExp(true)}
           >
             <IconPlus size={20} />
@@ -122,11 +127,12 @@ const ProfileExperience = () => {
         </Tooltip>
       </div>
 
+      {/* Experience List */}
       {experiences.map(
         (data: any, index: number) => (
           <div
             key={index}
-            className="p-4 rounded-lg"
+            className=" rounded-xl p-4 shadow-sm space-y-2"
           >
             {editingIndex === index ? (
               <ExpInput
@@ -144,9 +150,11 @@ const ProfileExperience = () => {
                 }
               />
             ) : (
-              <div className="flex justify-between items-start gap-3">
-                <Experience {...data} />
-                <div className="flex gap-3 ml-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div className="flex-1">
+                  <Experience {...data} />
+                </div>
+                <div className="flex sm:flex-col sm:items-end gap-3">
                   <Tooltip
                     label="Edit"
                     withArrow
@@ -184,13 +192,22 @@ const ProfileExperience = () => {
         )
       )}
 
+      {/* New Experience Form */}
       {addExp && (
-        <ExpInput
-          onSave={(newExperience: any) =>
-            handleSave(newExperience, null)
-          }
-          onCancel={() => setAddExp(false)}
-        />
+        <div
+          className={`${
+            isDark
+              ? "bg-[#040611] text-gray-200"
+              : "bg-gray-200 text-black"
+          } rounded-xl p-4 shadow-sm`}
+        >
+          <ExpInput
+            onSave={(newExperience: any) =>
+              handleSave(newExperience, null)
+            }
+            onCancel={() => setAddExp(false)}
+          />
+        </div>
       )}
     </div>
   );

@@ -9,7 +9,14 @@ export const getNotifications = async (
 ) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/notifications/get/${id}`
+      `${BASE_URL}/notifications/get/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
+        },
+      }
     );
     return response;
   } catch (error) {
@@ -38,7 +45,10 @@ export const markNotificationsAsRead = async (
       "READ", // ✅ raw string
       {
         headers: {
-          "Content-Type": "application/json", // ✅ important!
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`,
         },
       }
     );

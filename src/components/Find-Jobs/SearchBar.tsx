@@ -1,4 +1,3 @@
-// SearchBar.js
 import { useEffect, useState } from "react";
 import { dropdownData } from "../../data/JobsData";
 import MultiInput from "./MultiInput";
@@ -9,14 +8,14 @@ import {
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
-  onSalaryChange: ( 
+  onSalaryChange: (
     range: [number, number]
   ) => void;
   salaryRange: [number, number];
   onJobTitleChange: (filters: string[]) => void;
   onLocationChange: (filters: string[]) => void;
   onExperienceChange: (filters: string[]) => void;
-  resetMultiInput:boolean;
+  resetMultiInput: boolean;
 }
 
 const SearchBar = ({
@@ -73,32 +72,34 @@ const SearchBar = ({
   return (
     <div>
       <Divider size="xs" />
-      <div className="flex w-full items-center py-4 px-5 rounded-lg">
+      <div className="flex flex-wrap md:flex-nowrap gap-4 w-full py-4 px-4 md:px-6">
         {dropdownData.map((option, index) => (
           <div
             key={index}
-            className="flex items-center gap-3 w-1/5 justify-between mx-2"
+            className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-1/2 lg:w-1/5"
           >
-            <div className="text-white">
+            <div className=" w-full">
               <MultiInput
-                             {...option}
-                             onChange={(filters) =>
-                               handleMultiInputChange(
-                                 filters,
-                                 option.title
-                               )
-                             }
-                             resetValue={resetLocalMultiInput} // Pass reset prop
-                           />
+                {...option}
+                onChange={(filters) =>
+                  handleMultiInputChange(
+                    filters,
+                    option.title
+                  )
+                }
+                resetValue={resetLocalMultiInput}
+              />
             </div>
-            <Divider
-              size="xs"
-              orientation="vertical"
-            />
+            <div className="hidden sm:block">
+              <Divider
+                size="xs"
+                orientation="vertical"
+              />
+            </div>
           </div>
         ))}
-        <div className="w-1/5 px-2 [&_.mantine-Slider-label]:translate-y-10">
-          <div className="flex text-sm justify-between py-2">
+        <div className="w-full sm:w-1/2 lg:w-1/5 px-2 [&_.mantine-Slider-label]:translate-y-10">
+          <div className="flex justify-between text-sm py-2">
             <div>Salary</div>
             <div>
               ₹{salaryRange[0]} LPA - ₹

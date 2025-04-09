@@ -1,4 +1,3 @@
-// Jobs.js
 import { useState, useEffect } from "react";
 import {
   useDispatch,
@@ -17,6 +16,7 @@ const Jobs = () => {
   const allJobs =
     useSelector((state: any) => state.job.jobs) ||
     [];
+
   const [filteredJobs, setFilteredJobs] =
     useState(allJobs);
   const [searchQuery, setSearchQuery] =
@@ -34,18 +34,20 @@ const Jobs = () => {
     experienceFilters,
     setExperienceFilters,
   ] = useState<string[]>([]);
-    const [resetMultiInput, setResetMultiInput] =
-      useState(false); // Add reset state
-      const [isClearingFilter, setIsClearingFilter] =
-          useState<boolean>(false);
+  const [resetMultiInput, setResetMultiInput] =
+    useState(false);
+  const [isClearingFilter, setIsClearingFilter] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         const response = await getJobs();
-        const activeJobs = response.data.filter((job:any) => job.jobStatus === 'ACTIVE')
+        const activeJobs = response.data.filter(
+          (job: any) => job.jobStatus === "ACTIVE"
+        );
         dispatch(setJobs(activeJobs));
-        setFilteredJobs(activeJobs)
+        setFilteredJobs(activeJobs);
       } catch (error) {
         console.error(
           "Error fetching jobs:",
@@ -56,7 +58,6 @@ const Jobs = () => {
 
     fetchJobs();
   }, [dispatch]);
-
 
   useEffect(() => {
     if (!isClearingFilter) {
@@ -69,40 +70,25 @@ const Jobs = () => {
     salaryRange,
     jobTitleFilters,
     locationFilters,
-    experienceFilters
+    experienceFilters,
   ]);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = (query: string) =>
     setSearchQuery(query);
-  };
-
-  const handleFilter = (filterType: string) => {
+  const handleFilter = (filterType: string) =>
     setSelectedFilter(filterType);
-  };
-
   const handleSalaryRangeChange = (
     range: [number, number]
-  ) => {
-    setSalaryRange(range);
-  };
-
+  ) => setSalaryRange(range);
   const handleJobTitleFilterChange = (
     filters: string[]
-  ) => {
-    setJobTitleFilters(filters);
-  };
-
+  ) => setJobTitleFilters(filters);
   const handleLocationFilterChange = (
     filters: string[]
-  ) => {
-    setLocationFilters(filters);
-  };
-
+  ) => setLocationFilters(filters);
   const handleExperienceFilterChange = (
     filters: string[]
-  ) => {
-    setExperienceFilters(filters);
-  };
+  ) => setExperienceFilters(filters);
 
   const applyFilters = () => {
     let filtered = allJobs.filter((job: any) => {
@@ -191,7 +177,7 @@ const Jobs = () => {
         );
         break;
       default:
-      // Already filtered, no additional sorting needed
+      // No sort
     }
 
     setFilteredJobs(sortedJobs);
@@ -206,12 +192,11 @@ const Jobs = () => {
     setLocationFilters([]);
     setExperienceFilters([]);
     setFilteredJobs(allJobs);
-
-    setResetMultiInput(true); // Trigger reset
+    setResetMultiInput(true);
     setTimeout(
       () => setResetMultiInput(false),
       0
-    ); // Reset after a tiny delay
+    );
   };
 
   const isFilterApplied =
@@ -224,7 +209,7 @@ const Jobs = () => {
     selectedFilter !== "Relevant";
 
   return (
-    <div>
+    <div className="px-2 sm:px-4 md:px-8">
       <SearchBar
         onSearch={handleSearch}
         onSalaryChange={handleSalaryRangeChange}
@@ -240,8 +225,10 @@ const Jobs = () => {
         }
         resetMultiInput={resetMultiInput}
       />
-      <div className="flex justify-between items-center px-5 py-2">
-        <div className="flex gap-3">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-2 py-4 gap-4 sm:gap-0">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <h2 className="text-xl font-semibold">
             Recommended Jobs
           </h2>
@@ -251,22 +238,25 @@ const Jobs = () => {
               radius={50}
               variant="outline"
               color="red.8"
-              className="text-red-500 cursor-pointer"
+              className="text-red-500"
             >
-              Clear Filter
-              <X size={20} className="ml-4"/>
+              Clear Filter{" "}
+              <X
+                size={18}
+                className="ml-2"
+              />
             </Button>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Filter
-            onFilter={handleFilter}
-            selectedFilter={selectedFilter}
-          />
-        </div>
+        <Filter
+          onFilter={handleFilter}
+          selectedFilter={selectedFilter}
+        />
       </div>
-      <div className="py-4 px-4 mt-5 grid grid-cols-4 gap-4">
+
+      {/* Job Cards Grid */}
+      <div className="py-4 px-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {filteredJobs.length > 0 ? (
           filteredJobs.map(
             (data: any, index: number) => (
@@ -277,7 +267,9 @@ const Jobs = () => {
             )
           )
         ) : (
-          <p>No jobs found.</p>
+          <p className="col-span-full text-center text-gray-400">
+            No jobs found.
+          </p>
         )}
       </div>
     </div>

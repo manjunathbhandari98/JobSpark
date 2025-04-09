@@ -1,9 +1,15 @@
-import { Button, TagsInput, Textarea } from "@mantine/core";
+import {
+  Button,
+  TagsInput,
+  Textarea,
+  Divider,
+  useMantineColorScheme,
+} from "@mantine/core";
 import { fields } from "../../data/PostJob";
 import SelectInput from "./SelectInput";
 import TextEditor from "./TextEditor";
 import { useForm } from "@mantine/form";
-import { useEditor, Editor } from "@tiptap/react";
+import { useEditor } from "@tiptap/react";
 import Highlight from "@tiptap/extension-highlight";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -11,12 +17,20 @@ import TextAlign from "@tiptap/extension-text-align";
 import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import Link from "@tiptap/extension-link";
-import { useDispatch, useSelector } from "react-redux";
-import { addJob} from "../../Slices/JobSlice";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import { addJob } from "../../Slices/JobSlice";
 import { notifications } from "@mantine/notifications";
 
 const PostJob: React.FC = () => {
-  const user = useSelector((state:any)=>state.user);
+  const user = useSelector(
+    (state: any) => state.user
+  );const { colorScheme } = useMantineColorScheme(); 
+      const isDark = colorScheme === "dark";
+  const dispatch = useDispatch();
+
   const form = useForm({
     initialValues: {
       jobTitle: "",
@@ -48,17 +62,15 @@ const PostJob: React.FC = () => {
       form.setFieldValue(
         "description",
         editor.getHTML()
-      ); 
+      );
     },
   });
-
-  const dispatch = useDispatch();
 
   const handleSave = () => {
     const jobData = {
       ...form.values,
-      jobStatus: "ACTIVE", 
-      postedBy:user.id
+      jobStatus: "ACTIVE",
+      postedBy: user.id,
     };
 
     dispatch(addJob(jobData));
@@ -70,50 +82,54 @@ const PostJob: React.FC = () => {
     });
   };
 
-  const handleDrafts = () =>{
+  const handleDrafts = () => {
     const jobData = {
       ...form.values,
-      jobStatus: 'DRAFT'
+      jobStatus: "DRAFT",
     };
+
     dispatch(addJob(jobData));
 
     notifications.show({
-  title: "Job Saved as Draft",
-  message: "Your job has been saved as a draft",
-  color: "yellow", // Yellow for drafts (you can change the theme color)
-});
-
-  }
-
+      title: "Job Saved as Draft",
+      message:
+        "Your job has been saved as a draft",
+      color: "yellow",
+    });
+  };
 
   return (
-    <div>
-      <div className="text-2xl py-3 font-semibold">
-        Post a Job
+    <div
+      className={`rounded-xl px-4 py-6 shadow-lg space-y-6 ${
+        isDark
+          ? "bg-[#040611] text-gray-200"
+          : "bg-gray-200 text-black"
+      }`}
+    >
+      <div className="text-2xl font-bold text-green-400">
+        Post a New Job
       </div>
 
-      <div className="flex flex-wrap">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {fields.map((item, index) => (
-          <div
+          <SelectInput
             key={index}
-            className="w-1/2 px-2 space-y-7"
-          >
-            <SelectInput
-              {...item}
-              form={form}
-              name={item.name}
-            />
-          </div>
+            {...item}
+            form={form}
+            name={item.name}
+            isDark={isDark}
+          />
         ))}
       </div>
 
-      <div className="px-2">
+      <div>
         <TagsInput
           withAsterisk
-          label="Skills"
-          placeholder="Enter skills"
+          label="Skills Required"
+          placeholder="Type a skill and press Enter"
           clearable
           acceptValueOnBlur
+          className="mt-2"
           {...form.getInputProps(
             "skillsRequired"
           )}
@@ -125,22 +141,26 @@ const PostJob: React.FC = () => {
             )
           }
         />
-        <span className="text-xs">
-          Press Enter to submit the skills
-        </span>
+        <p className="text-xs mt-1 text-gray-400">
+          Press Enter to add skills
+        </p>
       </div>
 
-      {/* About Job */}
-      <div className="px-2 py-4">
-        <label
-          htmlFor=""
-          className="text-sm font-medium"
-        >
-          About Job
-          <span className="text-red-600 text-sm">
-            {" "}
-            *{" "}
-          </span>
+      <Divider
+        variant="dashed"
+        label="Job Description"
+        labelPosition="center"
+        className={`${
+          isDark
+            ? "border-gray-700"
+            : "border-gray-400"
+        }`}
+      />
+
+      <div>
+        <label className="text-sm font-medium block mb-1">
+          About the Job{" "}
+          <span className="text-red-500">*</span>
         </label>
         <Textarea
           value={form.values.about}
@@ -152,26 +172,30 @@ const PostJob: React.FC = () => {
               event.currentTarget.value
             )
           }
+          className={`${
+            isDark
+              ? "bg-[#1a1b1e] text-white"
+              : "bg-white text-black"
+          }`}
         />
       </div>
 
-      {/* Job Details */}
-      <div className="px-2 py-4">
-        <label className="text-sm font-medium">
-          Job Details
-          <span className="text-red-600 text-sm">
-            {" "}
-            *{" "}
-          </span>
+      <div>
+        <label className="text-sm font-medium block mb-1">
+          Job Details{" "}
+          <span className="text-red-500">*</span>
         </label>
-        <TextEditor editor={editor} />
+        <TextEditor
+          editor={editor}
+        />
       </div>
 
-      <div className="flex gap-4 px-2 py-4">
+      <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <Button
           variant="light"
           color="greenTheme.4"
           size="md"
+          fullWidth
           onClick={handleSave}
         >
           Publish Job
@@ -180,6 +204,7 @@ const PostJob: React.FC = () => {
           variant="outline"
           color="greenTheme.5"
           size="md"
+          fullWidth
           onClick={handleDrafts}
         >
           Save as Draft

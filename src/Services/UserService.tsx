@@ -6,11 +6,7 @@ export const registerUser = async (user: any) => {
     const response = await axios.post(
       `${BASE_URL}/users/register`,
       user,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+     
     );
     return response;
   } catch (e: unknown) {
@@ -34,11 +30,7 @@ export const loginUser = async(loginData:any) =>{
         const response = await axios.post(
             `${BASE_URL}/users/login`,
             loginData,
-            {
-            headers:{
-                'Content-Type':'application/json'
-            }
-        });
+           );
         return response;
     } catch (e:unknown) {
       if (axios.isAxiosError(e)) {
@@ -57,7 +49,8 @@ export const loginUser = async(loginData:any) =>{
 export const sendOTP = async (email: any) => {
   try {
     const response = await axios.post(
-      `${BASE_URL}/users/sendOTP/${email}`
+      `${BASE_URL}/users/sendOTP/${email}`,
+      
     );
 
     // If the backend returns an error response, explicitly throw it
@@ -87,7 +80,9 @@ export const sendOTP = async (email: any) => {
 
 export const verifyOTP = async(email:any, otp:any) =>{
   try{
-    const response = await axios.get(`${BASE_URL}/users/verifyOTP/${email}/${otp}`);
+    const response = await axios.get(`${BASE_URL}/users/verifyOTP/${email}/${otp}`,
+    
+    );
     if (response.data.success === false){
       throw{
       errorMessage: response.data.message || 'Failed to verify OTP'
@@ -113,7 +108,9 @@ export const resetPassword = async(email:any,password:any) =>{
       email:email,
       password:password
     }
-    const response = await axios.post(`${BASE_URL}/users/resetPassword`,data)
+    const response = await axios.post(`${BASE_URL}/users/resetPassword`,data,
+     
+    )
     if (response.data.success === false){
       throw{
         errorMessage:response.data.message || 'Failed to Reset password'
@@ -135,7 +132,9 @@ export const resetPassword = async(email:any,password:any) =>{
 
 export const getAllUsers = async() =>{
   try {
-    const response = await axios.get(`${BASE_URL}/users`);
+    const response = await axios.get(`${BASE_URL}/users`,
+      
+    );
     return response.data;
   } catch (e) {
     if(axios.isAxiosError(e)){
@@ -157,7 +156,8 @@ export const updateApplicantStatusAPI = async (
   try {
     const response = await axios.put(
       `${BASE_URL}/jobs/${jobId}/applicants/${applicantId}/status`,
-      { status }
+      { status },
+      
     );
     return response;
   } catch (e) {

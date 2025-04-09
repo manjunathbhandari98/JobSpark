@@ -8,6 +8,7 @@ import {
   Button,
   Divider,
   Modal,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
@@ -58,7 +59,8 @@ const TalentCard = (data: TalentCardProps) => {
   const selectedJob = useSelector(
     (state: any) => state.job?.selectedJob
   );
-
+const { colorScheme } = useMantineColorScheme(); 
+    const isDark = colorScheme === "dark";
   const [opened, { open, close }] =
     useDisclosure(false);
   const [selectedDate, setSelectedDate] =
@@ -72,7 +74,7 @@ const TalentCard = (data: TalentCardProps) => {
     }
   };
 
-  const handleSchedule = async() => {
+  const handleSchedule = async () => {
     if (
       selectedDate &&
       selectedTime &&
@@ -109,14 +111,17 @@ const TalentCard = (data: TalentCardProps) => {
         applicants: updatedApplicants,
       };
       console.log("Updated Job: ", updatedJob);
-      const response = await updateJob(selectedJob.id,updatedJob)
+      const response = await updateJob(
+        selectedJob.id,
+        updatedJob
+      );
       dispatch(editJob(response.data));
       data?.onStatusChange?.("INTERVIEWING");
       close();
     }
   };
 
-  const updateApplicantStatus = async(
+  const updateApplicantStatus = async (
     newStatus: "OFFERED" | "REJECTED"
   ) => {
     if (!selectedJob || !data?.id) return;
@@ -142,7 +147,8 @@ const TalentCard = (data: TalentCardProps) => {
     };
     const response = await updateJob(
       selectedJob.id,
-      updatedJob)
+      updatedJob
+    );
     dispatch(editJob(response.data));
     data?.onStatusChange?.(newStatus);
   };
@@ -158,12 +164,24 @@ const TalentCard = (data: TalentCardProps) => {
     "APPLIED";
 
   return (
-    <div className="gap-4">
-      <div className="bg-gray-900 rounded-xl gap-3 p-4 hover:shadow-[0_0_5px_1px_green] !shadow-green-500">
+    <div className="gap-5 h-full">
+      <div
+        className={`${
+          isDark
+            ? "bg-gray-900 text-gray-200"
+            : "bg-gray-100 text-black"
+        } rounded-xl gap-3 p-4 h-full hover:shadow-[0_0_5px_1px_green] !shadow-green-500`}
+      >
         {/* Top Info */}
         <div className="flex justify-between">
           <div className="flex gap-2 items-center">
-            <div className="bg-gray-800 p-1 rounded-full h-16 flex items-center">
+            <div
+              className={` ${
+                isDark
+                  ? "bg-gray-800"
+                  : "bg-gray-200"
+              } p-1 rounded-full h-16 flex items-center`}
+            >
               <img
                 src={imageSource}
                 alt="profile"
@@ -196,7 +214,11 @@ const TalentCard = (data: TalentCardProps) => {
               (item: any, index: number) => (
                 <div
                   key={index}
-                  className="text-sm shadow-2xl bg-gray-700 py-1 px-2 rounded-lg"
+                  className={`text-sm shadow-2xl ${
+                    isDark
+                      ? "bg-gray-700"
+                      : "bg-gray-200"
+                  } py-1 px-2 rounded-lg`}
                 >
                   {item}
                 </div>
