@@ -1,36 +1,38 @@
 import {
   Button,
+  Divider,
   TagsInput,
   Textarea,
-  Divider,
   useMantineColorScheme,
 } from "@mantine/core";
-import { fields } from "../../data/PostJob";
-import SelectInput from "./SelectInput";
-import TextEditor from "./TextEditor";
 import { useForm } from "@mantine/form";
-import { useEditor } from "@tiptap/react";
+import { notifications } from "@mantine/notifications";
 import Highlight from "@tiptap/extension-highlight";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-import Superscript from "@tiptap/extension-superscript";
-import SubScript from "@tiptap/extension-subscript";
 import Link from "@tiptap/extension-link";
+import SubScript from "@tiptap/extension-subscript";
+import Superscript from "@tiptap/extension-superscript";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { fields } from "../../data/PostJob";
 import { addJob } from "../../Slices/JobSlice";
-import { notifications } from "@mantine/notifications";
+import SelectInput from "./SelectInput";
+import TextEditor from "./TextEditor";
 
 const PostJob: React.FC = () => {
   const user = useSelector(
     (state: any) => state.user
-  );const { colorScheme } = useMantineColorScheme(); 
-      const isDark = colorScheme === "dark";
+  );
+  const { colorScheme } = useMantineColorScheme(); 
+  const isDark = colorScheme === "dark";
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const form = useForm({
     initialValues: {
       jobTitle: "",
@@ -80,16 +82,18 @@ const PostJob: React.FC = () => {
       message: "Your job has been posted",
       color: "greenTheme.5",
     });
+    navigate('/manage-jobs')
   };
 
   const handleDrafts = () => {
     const jobData = {
       ...form.values,
       jobStatus: "DRAFT",
+      postedBy: user.id
     };
 
     dispatch(addJob(jobData));
-
+    navigate('/manage-jobs')
     notifications.show({
       title: "Job Saved as Draft",
       message:

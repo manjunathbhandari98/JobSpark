@@ -1,4 +1,4 @@
-import { Divider } from "@mantine/core";
+
 import { Dot } from "lucide-react";
 import { formatDateToMonthYear } from './../../Utils/dateFormater';
 

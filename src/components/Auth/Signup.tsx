@@ -8,17 +8,16 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconAt } from "@tabler/icons-react";
 import { Lock } from "lucide-react";
+import { useState } from "react";
 import {
   Link,
   useNavigate,
-} from "react-router-dom"; // ✅ Import useNavigate
-import { useState } from "react";
+} from "react-router-dom";
 import { registerUser } from "../../Services/UserService";
-import NotificationBar from "../common/Notification"; // ✅ Import NotificationBar
 import { signupValidation } from "../../Validations/FormValidation";
-import { notifications } from "@mantine/notifications";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -26,7 +25,7 @@ const Signup = () => {
     const isDark = colorScheme === "dark";
   const [visible, { toggle }] =
     useDisclosure(false);
-  const [loading, setLoading] = useState(false); // ✅ Added loading state
+  const [loading, setLoading] = useState(false); 
 
   // State for form data
   const [data, setData] = useState({
@@ -117,9 +116,9 @@ const Signup = () => {
     }
 
     try {
-      setLoading(true); // ✅ Show loader
+      setLoading(true); 
 
-      // ✅ Ensure we send only required fields (NO profileId)
+      // Ensure we send only required fields (NO profileId)
       await registerUser({
         name: data.name,
         email: data.email,
@@ -127,9 +126,9 @@ const Signup = () => {
         accountType: data.accountType, // Keep it if your backend requires it
       });
 
-      setLoading(false); // ✅ Hide loader
+      setLoading(false); 
 
-      // ✅ Delay navigation to show the notification
+      //  Delay navigation to show the notification
       setTimeout(() => {
         notifications.show({
           title: "Account Created! 🎉",
@@ -139,7 +138,7 @@ const Signup = () => {
         navigate("/");
       }, 2500);
     } catch (error: any) {
-      setLoading(false); // ✅ Hide loader in case of error
+      setLoading(false); 
       notifications.show({
         title: "Signup Failed",
         message: error.errorMessage,

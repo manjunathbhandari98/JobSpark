@@ -1,11 +1,11 @@
 import { Button, Loader, PasswordInput } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { Lock } from "lucide-react";
-import { useNavigate,useSearchParams } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { resetPassword } from "../../Services/UserService";
 import { signupValidation } from "../../Validations/FormValidation";
-import { notifications } from "@mantine/notifications";
 
 const ResetPassword = () => {
   const navigate = useNavigate();

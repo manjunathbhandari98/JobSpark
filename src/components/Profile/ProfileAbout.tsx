@@ -5,16 +5,15 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import { IconPencil } from "@tabler/icons-react";
-import { Save } from "lucide-react";
 import { useState } from "react";
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { changeProfile } from "../../Slices/ProfileSlice";
-import { notifications } from "@mantine/notifications";
 import { updateProfile } from "../../Services/ProfileService";
+import { changeProfile } from "../../Slices/ProfileSlice";
 
 const ProfileAbout = () => {
   const [edit, setEdit] = useState(false);
@@ -47,9 +46,8 @@ const ProfileAbout = () => {
 
     try {
      await updateProfile(
-        updatedProfile
-      ); // Get the updated profile from API
-      
+       updatedProfile
+      ); 
       dispatch(changeProfile(updatedProfile)); // Use updated version from backend (if backend modified anything)
 
       notifications.show({

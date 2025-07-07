@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
 import { Notification } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
 import {
   motion,
-  AnimatePresence,
 } from "framer-motion";
 import { XIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // Define the props interface
 interface NotificationBarProps {

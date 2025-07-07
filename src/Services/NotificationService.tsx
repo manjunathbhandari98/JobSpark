@@ -34,7 +34,7 @@ export const getNotifications = async (
   }
 };
 
-// ✅ UPDATE notifications to mark as READ for a user
+// UPDATE notifications to mark as READ for a user
 export const markNotificationsAsRead = async (
   userId: number,
   notificationId: number
@@ -42,7 +42,7 @@ export const markNotificationsAsRead = async (
   try {
     const response = await axios.put(
       `${BASE_URL}/notifications/update/${userId}/${notificationId}`,
-      "READ", // ✅ raw string
+      "READ", // raw string
       {
         headers: {
           "Content-Type": "application/json",

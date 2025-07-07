@@ -1,15 +1,15 @@
-import { useForm } from "@mantine/form";
 import { Button, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
+import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { changeProfile } from "../../Slices/ProfileSlice";
-import { notifications } from "@mantine/notifications";
-import SelectInput from "./SelectInput";
 import { companies } from "../../data/Data";
-import { updateProfile } from "../../Services/ProfileService"; // ✅ Don't forget this!
+import { updateProfile } from "../../Services/ProfileService";
+import { changeProfile } from "../../Slices/ProfileSlice";
+import SelectInput from "./SelectInput";
 
 const CertificateInput = ({
   initialValues,
@@ -18,7 +18,7 @@ const CertificateInput = ({
   const dispatch = useDispatch();
   const profile = useSelector(
     (state: any) => state.profile.selectedProfile
-  ); // ✅ Use selectedProfile
+  ); 
 
   const form = useForm({
     initialValues: {
@@ -64,7 +64,7 @@ const CertificateInput = ({
         certificates: updatedCertificates,
       });
 
-      dispatch(changeProfile(response.data)); // ✅ Sync with backend
+      dispatch(changeProfile(response.data));
 
       notifications.show({
         title: "Success",

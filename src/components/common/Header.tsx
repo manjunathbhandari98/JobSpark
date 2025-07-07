@@ -1,22 +1,21 @@
+import { Button, Drawer, useMantineColorScheme } from "@mantine/core";
+import { Menu } from "lucide-react"; // Hamburger icon
+import { useEffect, useState } from "react";
+import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
 import {
   Link,
   useLocation,
 } from "react-router-dom";
 import Logo from "../../assets/Logo";
-import { Button, Drawer, useMantineColorScheme } from "@mantine/core";
-import NavLinks from "./NavLinks";
-import ProfileMenu from "./ProfileMenu";
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
-import useImage from "../../hooks/useImage";
-import { useEffect, useState } from "react";
+import { getNotifications } from "../../Services/NotificationService";
 import { getProfile } from "../../Services/ProfileService";
 import { setProfile } from "../../Slices/ProfileSlice";
+import NavLinks from "./NavLinks";
 import NotificationsMenu from "./NotificationsMenu";
-import { getNotifications } from "../../Services/NotificationService";
-import { Menu } from "lucide-react"; // Hamburger icon
+import ProfileMenu from "./ProfileMenu";
 
 const Header = () => {
   const location = useLocation();
@@ -29,7 +28,7 @@ const Header = () => {
     (state: any) => state.profile.selectedProfile
   );
   const [notifications, setNotifications] =
-    useState([]);
+    useState<any>([]);
   const [drawerOpened, setDrawerOpened] =
     useState(false);
 
@@ -74,7 +73,6 @@ const Header = () => {
 
    const { colorScheme } = useMantineColorScheme(); 
     const isDark = colorScheme === "dark";
-  const imageSource = useImage(profile?.picture);
   if (location.pathname.startsWith("/auth"))
     return null;
 
@@ -110,17 +108,18 @@ const Header = () => {
 
       {/* Desktop Right-side Actions (Profile/Login) */}
       <div className="hidden md:flex items-center gap-6">
-        <div className="md:flex hidden">
+        <div className="md:flex hidden relative">
           <NotificationsMenu
             notifications={notifications}
             refreshNotifications={
               fetchNotifications
             }
           />
+          {notifications.some((n:any) => !n.read) &&  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-green-500 animate-ping"></span> }
         </div>
         {user ? (
           <ProfileMenu
-            image={imageSource}
+            image={profile?.picture}
             name={user?.name}
             email={profile?.email}
           />
@@ -171,7 +170,7 @@ const Header = () => {
           >
             {user ? (
               <ProfileMenu
-                image={imageSource}
+                image={profile?.picture}
                 name={user?.name}
                 email={profile?.email}
               />

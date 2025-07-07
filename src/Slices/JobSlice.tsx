@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { postJob, updateJob, deleteJob } from "../Services/JobService";
+import { deleteJob, postJob } from "../Services/JobService";
 
 export interface Applicant {
   id: number;
@@ -10,9 +10,9 @@ export interface Applicant {
 }
 
 export enum JobStatus {
-  OPEN = "OPEN",
+  ACTIVE = "ACTIVE",
   CLOSED = "CLOSED",
-  IN_PROGRESS = "IN_PROGRESS",
+  DRAFT = "DRAFT",
 }
 
 export interface Job {

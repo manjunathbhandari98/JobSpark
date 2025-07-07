@@ -1,15 +1,15 @@
 import { Tabs, useMantineColorScheme } from "@mantine/core";
-import JobsStatus from "./JobsStatus";
 import { useEffect } from "react";
 import {
-  useSelector,
   useDispatch,
+  useSelector,
 } from "react-redux";
-import {
-  setJobs,
-  setJob,
-} from "../../Slices/JobSlice";
 import { getJobs } from "../../Services/JobService";
+import {
+  setJob,
+  setJobs,
+} from "../../Slices/JobSlice";
+import JobsStatus from "./JobsStatus";
 
 const JobTabs = () => {
   const dispatch = useDispatch();
@@ -39,7 +39,14 @@ const JobTabs = () => {
     getJobs().then((res) =>
       dispatch(setJobs(res.data))
     );
+    
+    
   }, [dispatch]);
+
+  useEffect(() =>{
+    console.log('posted jobs:',postedJobs)
+    console.log('drafts: ', drafts);
+  },[postedJobs,drafts])
 
   return (
     <div

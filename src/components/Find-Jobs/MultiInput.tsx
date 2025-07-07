@@ -1,4 +1,3 @@
-import { JSX, useEffect, useState } from "react";
 import {
   CheckIcon,
   Combobox,
@@ -7,6 +6,7 @@ import {
   PillsInput,
   useCombobox,
 } from "@mantine/core";
+import { useEffect, useState } from "react";
 
 interface MultiInputProps {
   options: string[];
@@ -19,7 +19,6 @@ interface MultiInputProps {
 const MultiInput = ({
   options,
   title,
-  icon,
   onChange,
   resetValue,
 }: MultiInputProps) => {

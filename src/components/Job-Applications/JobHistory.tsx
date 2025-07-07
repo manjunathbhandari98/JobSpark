@@ -1,46 +1,42 @@
 import { Tabs } from "@mantine/core";
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
-import Card from "./Card";
+import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import useSavedJob from "../../hooks/useSavedJobs";
-import { useEffect, useMemo } from "react";
 import { getJobs } from "../../Services/JobService";
 import { setJobs } from "../../Slices/JobSlice";
+import Card from "./Card";
 
 const JobHistory = () => {
   const dispatch = useDispatch();
-  const jobs = useSelector(
-    (state: any) => state.job.jobs
-  );
-  const user = useSelector(
-    (state: any) => state.user
-  );
+  const jobs = useSelector((state: any) => state.job.jobs);
+  const user = useSelector((state: any) => state.user);
   const { savedJobs } = useSavedJob();
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await getJobs();
-        dispatch(setJobs(response.data));
-      } catch (error) {
-        console.error(
-          "Error fetching jobs:",
-          error
-        );
-      }
-    };
+  const [activeTab, setActiveTab] = useState<string | null>("applied");
 
-    fetchJobs();
+
+  const fetchJobs = async () => {
+    try {
+      const response = await getJobs();
+      dispatch(setJobs(response.data));
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs(); // Initial fetch
   }, [dispatch]);
+
+  useEffect(() => {
+    fetchJobs(); // Re-fetch on tab change
+  }, [activeTab]);
 
   const appliedJobs = useMemo(() => {
     return jobs
       .map((job: any) => {
         const applicant = job.applicants?.find(
-          (applicant: any) =>
-            applicant.applicantId === user.id
+          (applicant: any) => applicant.applicantId === user.id
         );
         return applicant
           ? {
@@ -60,8 +56,7 @@ const JobHistory = () => {
           const applicant = job.applicants?.find(
             (applicant: any) =>
               applicant.applicantId === user.id &&
-              applicant.applicationStatus ===
-                status
+              applicant.applicationStatus === status
           );
           return applicant
             ? {
@@ -75,152 +70,65 @@ const JobHistory = () => {
     [jobs, user.id]
   );
 
-  const offeredJobs = useMemo(
-    () => filterJobsByStatus("OFFERED"),
-    [filterJobsByStatus]
-  );
-  const acceptedJobs = useMemo(
-    () => filterJobsByStatus("ACCEPTED"),
-    [filterJobsByStatus]
-  );
-  const rejectedJobs = useMemo(
-    () => filterJobsByStatus("REJECTED"),
-    [filterJobsByStatus]
-  );
-  const inProgressJobs = useMemo(
-    () => filterJobsByStatus("INTERVIEWING"),
-    [filterJobsByStatus]
-  );
+  const offeredJobs = useMemo(() => filterJobsByStatus("OFFERED"), [filterJobsByStatus]);
+  const acceptedJobs = useMemo(() => filterJobsByStatus("ACCEPTED"), [filterJobsByStatus]);
+  const rejectedJobs = useMemo(() => filterJobsByStatus("REJECTED"), [filterJobsByStatus]);
+  const inProgressJobs = useMemo(() => filterJobsByStatus("INTERVIEWING"), [filterJobsByStatus]);
 
   return (
     <div className="py-4 px-4 sm:px-6 lg:px-8">
       <Tabs
         variant="outline"
-        defaultValue="applied"
+        value={activeTab}
+        onChange={setActiveTab}
       >
         <Tabs.List className="flex flex-wrap gap-2 overflow-x-auto whitespace-nowrap [&_button]:!text-base sm:[&_button]:!text-lg [&_button]:!font-semibold [&_button[data-active='true']]:!text-green-500">
-          <Tabs.Tab value="applied">
-            Applied
-          </Tabs.Tab>
+          <Tabs.Tab value="applied">Applied</Tabs.Tab>
           <Tabs.Tab value="saved">Saved</Tabs.Tab>
-          <Tabs.Tab value="offered">
-            Offered
-          </Tabs.Tab>
-          <Tabs.Tab value="inprogress">
-            In Progress
-          </Tabs.Tab>
-          <Tabs.Tab value="accepted">
-            Accepted
-          </Tabs.Tab>
-          <Tabs.Tab value="rejected">
-            Rejected
-          </Tabs.Tab>
+          <Tabs.Tab value="offered">Offered</Tabs.Tab>
+          <Tabs.Tab value="inprogress">In Progress</Tabs.Tab>
+          <Tabs.Tab value="accepted">Accepted</Tabs.Tab>
+          <Tabs.Tab value="rejected">Rejected</Tabs.Tab>
         </Tabs.List>
 
         <div className="py-4">
           <Tabs.Panel value="applied">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
-              {appliedJobs.map(
-                (data: any, index: number) => (
-                  <Card
-                    key={index}
-                    {...data}
-                    applied
-                    status={
-                      data.status ===
-                        "ACCEPTED" ||
-                      data.status === "REJECTED"
-                        ? data.status
-                        : undefined
-                    }
-                  />
-                )
-              )}
-            </div>
+            <JobsGrid data={appliedJobs} type="applied" />
           </Tabs.Panel>
-
           <Tabs.Panel value="saved">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
-              {jobs
-                .filter((job: any) =>
-                  savedJobs.includes(job.id)
-                )
-                .map(
-                  (data: any, index: number) => (
-                    <Card
-                      key={index}
-                      {...data}
-                      saved
-                    />
-                  )
-                )}
-            </div>
+            <JobsGrid data={jobs.filter((j: any) => savedJobs.includes(j.id))} type="saved" />
           </Tabs.Panel>
-
           <Tabs.Panel value="offered">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
-              {offeredJobs.map(
-                (data: any, index: number) => (
-                  <Card
-                    key={index}
-                    {...data}
-                    offered
-                    status={
-                      data.status ===
-                        "ACCEPTED" ||
-                      data.status === "REJECTED"
-                        ? data.status
-                        : undefined
-                    }
-                  />
-                )
-              )}
-            </div>
+            <JobsGrid data={offeredJobs} type="offered" />
           </Tabs.Panel>
-
           <Tabs.Panel value="inprogress">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
-              {inProgressJobs.map(
-                (data: any, index: number) => (
-                  <Card
-                    key={index}
-                    {...data}
-                    status="INTERVIEWING"
-                  />
-                )
-              )}
-            </div>
+            <JobsGrid data={inProgressJobs} type="INTERVIEWING" />
           </Tabs.Panel>
-
           <Tabs.Panel value="accepted">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
-              {acceptedJobs.map(
-                (data: any, index: number) => (
-                  <Card
-                    key={index}
-                    {...data}
-                    status="ACCEPTED"
-                  />
-                )
-              )}
-            </div>
+            <JobsGrid data={acceptedJobs} type="ACCEPTED" />
           </Tabs.Panel>
-
           <Tabs.Panel value="rejected">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
-              {rejectedJobs.map(
-                (data: any, index: number) => (
-                  <Card
-                    key={index}
-                    {...data}
-                    status="REJECTED"
-                  />
-                )
-              )}
-            </div>
+            <JobsGrid data={rejectedJobs} type="REJECTED" />
           </Tabs.Panel>
         </div>
       </Tabs>
+    </div>
+  );
+};
+
+const JobsGrid = ({ data, type }: { data: any[]; type: string }) => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
+      {data.map((job, i) => (
+        <Card
+          key={i}
+          {...job}
+          status={["ACCEPTED", "REJECTED", "INTERVIEWING"].includes(type) ? type : undefined}
+          applied={type === "applied"}
+          saved={type === "saved"}
+          offered={type === "offered"}
+        />
+      ))}
     </div>
   );
 };

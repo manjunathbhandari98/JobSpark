@@ -57,13 +57,13 @@ export const updateProfile = async (
 ) => {
   try {
     const response = await axios.put(
-      `${BASE_URL}/profile/update`,
+      `${BASE_URL}/profile/update-info`,
       data,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem(
             "token"
-          )}`,
+          )}`
         },
       }
     );
@@ -83,3 +83,32 @@ export const updateProfile = async (
 };
 
 
+export const updateProfileImage = async (
+  data: any
+) => {
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/profile/update-image`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(
+            "token"
+          )}`
+        },
+      }
+    );
+    return response.data; // return the updated profile data
+  } catch (e: unknown) {
+    if (axios.isAxiosError(e)) {
+      throw (
+        e.response?.data || {
+          message: "Failed to update profile",
+        }
+      );
+    }
+    throw {
+      message: "An unexpected error occurred",
+    };
+  }
+};

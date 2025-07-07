@@ -1,32 +1,29 @@
 import {
-  IconUserCircle,
-  IconMessageCircle,
-  IconFileCv,
-  IconMoon,
-  IconLogout2,
+  Box,
+  Container,
+  Divider,
+  Group,
+  Stack,
+  Switch,
+  Text,
+  useMantineColorScheme,
+  useMantineTheme,
+} from "@mantine/core";
+import {
   IconChevronRight,
+  IconFileCv,
+  IconLogout2,
+  IconMessageCircle,
+  IconMoon,
+  IconUserCircle,
 } from "@tabler/icons-react";
 import {
-  Container,
-  Group,
-  Text,
-  Switch,
-  Divider,
-  Box,
-  Stack,
-  useMantineTheme,
-  useMantineColorScheme,
-} from "@mantine/core";
-import { useNavigate } from "react-router-dom";
-import {
   useDispatch,
-  useSelector,
 } from "react-redux";
-import { useState } from "react";
-import { removeUser } from "../../Slices/UserSlice";
+import { useNavigate } from "react-router-dom";
 import { removeToken } from "../../Slices/JWTSlice";
-import { RootState } from "../../App/Store";
 import { toggleTheme } from "../../Slices/ThemeSlice";
+import { removeUser } from "../../Slices/UserSlice";
 
 const OptionRow = ({
   icon,

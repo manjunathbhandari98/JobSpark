@@ -3,16 +3,16 @@ import {
   Tabs,
   useMantineColorScheme,
 } from "@mantine/core";
-import JobDesc from "../Job-Desc/JobDesc";
-import TalentCard from "../Find-Talents/TalentCard";
+import { useEffect, useState } from "react";
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { useEffect, useState } from "react";
 import { getAllProfiles } from "../../Services/ProfileService";
 import { getAllUsers } from "../../Services/UserService";
 import { updateApplicantStatus } from "../../Slices/JobSlice";
+import TalentCard from "../Find-Talents/TalentCard";
+import JobDesc from "../Job-Desc/JobDesc";
 
 interface Profile {
   id: number;
@@ -44,6 +44,7 @@ const ApplicantsOverview = () => {
     useState<Profile[]>([]);
   const [rejectedProfiles, setRejectedProfiles] =
     useState<Profile[]>([]);
+    
 
   const selectedJob = useSelector(
     (state: any) => state.job.selectedJob
@@ -53,6 +54,7 @@ const ApplicantsOverview = () => {
   const isDark = colorScheme === "dark";
 
   useEffect(() => {
+
     const fetchProfilesAndUsers = async () => {
       try {
         const usersResponse: User[] =
@@ -134,6 +136,8 @@ const ApplicantsOverview = () => {
       })
     );
   };
+
+  
 
   const renderApplicantList = (
     list: Profile[],

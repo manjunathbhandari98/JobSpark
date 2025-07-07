@@ -4,11 +4,11 @@ const jwtSlice = createSlice({
     name: "jwt",
     initialState:localStorage.getItem("token") || "",
     reducers: {
-        setToken: (state, action) => {
+        setToken: (_, action) => {
             localStorage.setItem("token", action.payload);
             return action.payload;
         },
-        removeToken: (state) => {
+        removeToken: () => {
             localStorage.removeItem("token");
             return "";
         },

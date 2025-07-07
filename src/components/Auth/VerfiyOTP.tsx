@@ -1,66 +1,28 @@
-import {
-  useState,
-  useRef,
-  useEffect,
-} from "react";
-import { Button, TextInput } from "@mantine/core";
+import { Button } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import {
-  verifyOTP,
-  sendOTP,
-} from "../../Services/UserService";
-import {
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { sendOTP, verifyOTP } from "../../Services/UserService";
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
-  const [otp, setOtp] = useState([
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
+  const [searchParams] = useSearchParams();
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const inputRefs = useRef<HTMLInputElement[]>(
-    []
-  );
-  const [searchParams, setSearchParams] =
-    useSearchParams();
-  const [email, setEmail] = useState(
-    searchParams.get("email") || ""
-  );
-  const [isChangingEmail, setIsChangingEmail] =
-    useState(false);
-  const [newEmail, setNewEmail] = useState("");
-  const [resendCount, setResendCount] =
-    useState(0);
-  const [resendTimer, setResendTimer] =
-    useState(60);
-  const [isResendDisabled, setIsResendDisabled] =
-    useState(true);
+  const inputRefs = useRef<HTMLInputElement[]>([]);
+  const email = searchParams.get("email") || "";
 
-  useEffect(() => {
-    inputRefs.current = Array(6).fill(null);
-  }, []);
+  const [resendCount, setResendCount] = useState(0);
+  const [resendTimer, setResendTimer] = useState(60);
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
 
-  const handleChange = (
-    index: number,
-    value: string
-  ) => {
+  const handleChange = (index: number, value: string) => {
     if (!/^[0-9]?$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    if (
-      value &&
-      index < 5 &&
-      inputRefs.current[index + 1]
-    ) {
-      inputRefs.current[index + 1].focus();
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
@@ -69,8 +31,7 @@ const VerifyOTP = () => {
     if (enteredOTP.length !== 6) {
       notifications.show({
         title: "Invalid OTP",
-        message:
-          "Please enter all six digits of the OTP.",
+        message: "Please enter all six digits of the OTP.",
         color: "red.7",
       });
       return;
@@ -79,39 +40,31 @@ const VerifyOTP = () => {
     setLoading(true);
     try {
       await verifyOTP(email, enteredOTP);
-      setLoading(false);
       notifications.show({
         title: "OTP Verified",
-        message:
-          "Your OTP has been successfully verified.",
+        message: "Your OTP has been successfully verified.",
         color: "greenTheme.5",
       });
-      navigate(
-        `/auth?mode=reset-password&email=${encodeURIComponent(
-          email
-        )}`
-      );
+      navigate(`/auth?mode=reset-password&email=${encodeURIComponent(email)}`);
     } catch (error: any) {
-      setLoading(false);
       notifications.show({
         title: "Verification Failed",
-        message:
-          error.errorMessage ||
-          "Invalid OTP. Please try again.",
+        message: error.errorMessage || "Invalid OTP. Please try again.",
         color: "red.7",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
+    let timer: NodeJS.Timeout;
     if (isResendDisabled && resendTimer > 0) {
       timer = setInterval(() => {
         setResendTimer((prev) => prev - 1);
       }, 1000);
     } else if (resendTimer === 0) {
       setIsResendDisabled(false);
-      clearInterval(timer);
     }
     return () => clearInterval(timer);
   }, [isResendDisabled, resendTimer]);
@@ -120,40 +73,33 @@ const VerifyOTP = () => {
     if (resendCount >= 3) return;
     try {
       await sendOTP(email);
-      setResendCount(resendCount + 1);
+      setResendCount((prev) => prev + 1);
       setResendTimer(60);
       setIsResendDisabled(true);
       notifications.show({
         title: "OTP Resent",
-        message:
-          "A new OTP has been sent to your email.",
+        message: "A new OTP has been sent to your email.",
         color: "greenTheme.5",
       });
     } catch (error: any) {
       notifications.show({
         title: "Resend Failed",
-        message:
-          error.errorMessage ||
-          "Unable to resend OTP. Try again later.",
+        message: error.errorMessage || "Unable to resend OTP. Try again later.",
         color: "red.7",
       });
     }
   };
 
   const handleChangeEmail = () => {
-      navigate(-1)
-  
+    navigate(-1);
   };
 
   return (
     <div className="flex m-auto">
       <div className="w-full max-w-md p-8 rounded-2xl shadow-lg text-center">
-        <h2 className="text-3xl font-bold mb-4">
-          Verify OTP
-        </h2>
+        <h2 className="text-3xl font-bold mb-4">Verify OTP</h2>
         <p className="mb-6">
-          Enter the six-digit OTP sent to{" "}
-          <b>{email}</b> to continue.
+          Enter the six-digit OTP sent to <b>{email}</b> to continue.
           <Button
             variant="subtle"
             className="w-full ml-4"
@@ -176,17 +122,10 @@ const VerifyOTP = () => {
             <input
               key={index}
               ref={(el) => {
-                if (el) {
-                  inputRefs.current[index] = el;
-                }
+                if (el) inputRefs.current[index] = el;
               }}
               value={digit}
-              onChange={(e) =>
-                handleChange(
-                  index,
-                  e.target.value
-                )
-              }
+              onChange={(e) => handleChange(index, e.target.value)}
               maxLength={1}
               className="w-12 h-12 text-2xl font-semibold text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition"
             />
@@ -200,18 +139,14 @@ const VerifyOTP = () => {
           color="greenTheme.5"
           fullWidth
         >
-          {loading
-            ? "Verifying..."
-            : "Verify OTP"}
+          {loading ? "Verifying..." : "Verify OTP"}
         </Button>
 
         <Button
           variant="subtle"
           className="w-full mt-3 text-green-600 font-semibold hover:text-green-700 disabled:opacity-50 bg-transparent"
           onClick={handleResendOTP}
-          disabled={
-            isResendDisabled || resendCount >= 3
-          }
+          disabled={isResendDisabled || resendCount >= 3}
           styles={{
             root: {
               backgroundColor: "transparent",
@@ -223,11 +158,7 @@ const VerifyOTP = () => {
         >
           {resendCount >= 3
             ? "Max attempts reached"
-            : `Resend OTP ${
-                isResendDisabled
-                  ? `(${resendTimer}s)`
-                  : ""
-              }`}
+            : `Resend OTP ${isResendDisabled ? `(${resendTimer}s)` : ""}`}
         </Button>
       </div>
     </div>

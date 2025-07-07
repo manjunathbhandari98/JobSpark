@@ -1,18 +1,18 @@
+import { useMantineColorScheme } from "@mantine/core";
+import {
+  useMediaQuery,
+} from "@mantine/hooks";
 import { ArrowLeft } from "lucide-react";
 import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import {
-  useMediaQuery,
-} from "@mantine/hooks";
 import Logo from "../assets/Logo";
-import Signup from "../components/Auth/Signup";
-import Login from "../components/Auth/Login";
 import ForgotPassword from "../components/Auth/ForgotPassword";
-import VerifyOTP from "../components/Auth/VerfiyOTP";
+import Login from "../components/Auth/Login";
 import ResetPassword from "../components/Auth/ResetPassword";
-import { useMantineColorScheme } from "@mantine/core";
+import Signup from "../components/Auth/Signup";
+import VerifyOTP from "../components/Auth/VerfiyOTP";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -66,7 +66,7 @@ const Auth = () => {
           : "bg-gray-200 text-black"
       }`}
     >
-      {/* 🔙 Home Button */}
+      {/*  Home Button */}
       <div className="fixed top-5 left-5 z-50">
         <button
           onClick={() => navigate("/")}
@@ -77,7 +77,7 @@ const Auth = () => {
         </button>
       </div>
 
-      {/* 📱 Mobile View */}
+      {/* Mobile View */}
       {isMobile ? (
         <div className="w-full h-full flex items-center justify-center">
           {mode === "signup" ? (
@@ -87,7 +87,7 @@ const Auth = () => {
           )}
         </div>
       ) : (
-        // 💻 Desktop View
+        //  Desktop View
         <div
           className={`w-full h-full hidden md:flex [&>*]:flex-shrink-0 transition-transform duration-1000 ease-in-out ${
             mode === "signup"

@@ -1,12 +1,11 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import LoadingScreen from '../Utils/LoadingScreen';
+import EditJob from "../components/Manage-Jobs/EditJob";
+import ProfileOptions from "../components/common/ProfileOptions";
 import PrivateRoutes from "./PrivateRoutes";
 import PublicRoutes from "./PublicRoutes";
 import RoutePaths from "./RoutePath";
-import EditJob from "../components/Manage-Jobs/EditJob";
-import { Loader } from "@mantine/core";
-import LoadingScreen from '../Utils/LoadingScreen'
-import ProfileOptions from "../components/common/ProfileOptions";
 
 // Lazy load pages
 const HomePage = lazy(

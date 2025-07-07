@@ -1,19 +1,18 @@
 import {
-  Menu,
-  Text,
-  UnstyledButton,
-  Group,
-  ScrollArea,
   Box,
-  Divider,
   Button,
+  Divider,
+  Group,
   Indicator,
-  Stack,
+  Menu,
+  ScrollArea,
+  Text,
+  UnstyledButton
 } from "@mantine/core";
 import { IconCheck } from "@tabler/icons-react";
 import { Bell } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { markNotificationsAsRead } from "../../Services/NotificationService";
 
 interface Notification {

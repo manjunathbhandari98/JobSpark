@@ -1,23 +1,24 @@
 import { Button, TagsInput, Textarea, useMantineColorScheme } from "@mantine/core";
-import { fields } from "../../data/PostJob";
 import { useForm } from "@mantine/form";
-import { useEditor, Editor } from "@tiptap/react";
+import { notifications } from "@mantine/notifications";
 import Highlight from "@tiptap/extension-highlight";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-import Superscript from "@tiptap/extension-superscript";
-import SubScript from "@tiptap/extension-subscript";
 import Link from "@tiptap/extension-link";
+import SubScript from "@tiptap/extension-subscript";
+import Superscript from "@tiptap/extension-superscript";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { addJob, editJob, setJob } from "../../Slices/JobSlice";
-import { notifications } from "@mantine/notifications";
-import SelectInput from "../Profile/SelectInput";
-import TextEditor from "../Post-Job/TextEditor";
 import { useNavigate } from "react-router-dom";
+import { fields } from "../../data/PostJob";
+import { updateJob } from "../../Services/JobService";
+import { editJob, setJob } from "../../Slices/JobSlice";
+import TextEditor from "../Post-Job/TextEditor";
+import SelectInput from "../Profile/SelectInput";
 
 const EditJob: React.FC = () => {
     const navigate = useNavigate();
@@ -70,7 +71,7 @@ const EditJob: React.FC = () => {
 
   const dispatch = useDispatch();
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!selectedJob?.id) {
       notifications.show({
         title: "Error",
@@ -81,22 +82,32 @@ const EditJob: React.FC = () => {
     }
 
     const jobData = {
-      id: selectedJob.id, // ✅ Ensuring ID is included
+      id: selectedJob.id, 
       ...form.values,
     };
 
-    dispatch(editJob(jobData)); 
-    dispatch(setJob(jobData));
-    notifications.show({
-      title: "Job Updated Successfully",
-      message: "Your job has been updated",
-      color: "greenTheme.5",
-    });
-
-    navigate("/manage-jobs"); 
+    try {
+      const response = await updateJob(selectedJob.id,jobData);
+      dispatch(editJob(response.data)); // Update Redux store with updated job
+      dispatch(setJob(response.data));
+  
+      notifications.show({
+        title: "Job Updated Successfully",
+        message: "Your job has been updated.",
+        color: "greenTheme.5",
+      });
+      navigate('/manage-jobs')
+    } catch (error) {
+      console.error("Failed to updated job:", error);
+      notifications.show({
+        title: "Error",
+        message: "Failed to update job!",
+        color: "red",
+      });
+    }
   };
 
-  const activateJob = () => {
+  const activateJob = async () => {
     if (!selectedJob?.id) {
       notifications.show({
         title: "Error",
@@ -105,23 +116,33 @@ const EditJob: React.FC = () => {
       });
       return;
     }
-
+  
     const jobData = {
-      ...selectedJob, // Keep existing job data
-      jobStatus: "ACTIVE", // Set status to ACTIVE
+      ...selectedJob,
+      jobStatus: "ACTIVE",
     };
-
-    dispatch(editJob(jobData));
-    dispatch(setJob(jobData));
-
-    notifications.show({
-      title: "Job Activated",
-      message:
-        "Your job is now active and visible.",
-      color: "greenTheme.5",
-    });
-
+  
+    try {
+      const response = await updateJob(selectedJob.id,jobData);
+      dispatch(editJob(response.data)); // Update Redux store with updated job
+      dispatch(setJob(response.data));
+  
+      notifications.show({
+        title: "Job Activated",
+        message: "Your job is now active and visible.",
+        color: "greenTheme.5",
+      });
+      navigate('/manage-jobs')
+    } catch (error) {
+      console.error("Failed to activate job:", error);
+      notifications.show({
+        title: "Error",
+        message: "Failed to activate job!",
+        color: "red",
+      });
+    }
   };
+  
 
 
   return (

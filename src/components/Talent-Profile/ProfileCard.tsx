@@ -1,16 +1,15 @@
 import { Button, Divider, useMantineColorScheme } from "@mantine/core";
-import Experience from "./Experience";
 import {
   Briefcase,
   Dot,
   MapPin,
 } from "lucide-react";
-import Certification from "./Certification";
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { getAllProfiles } from "../../Services/ProfileService";
 import { getAllUsers } from "../../Services/UserService";
-import useImage from "../../hooks/useImage";
+import Certification from "./Certification";
+import Experience from "./Experience";
 import RecommendedTalents from "./RecommendedTalents";
 
 const ProfileCard = () => {
@@ -98,9 +97,7 @@ const ProfileCard = () => {
     setRecommendedTalents(recommendations);
   }, [selectedProfile, profiles, users]);
 
-  const imageSource = useImage(
-    selectedProfile?.picture
-  );
+  
 
   if (!selectedProfile) {
     return <div>Loading profile...</div>;
@@ -126,7 +123,7 @@ const ProfileCard = () => {
                   : "bg-gray-200 text-black"
               } rounded-full`}>
               <img
-                src={imageSource}
+                src={selectedProfile?.picture}
                 alt="profile_pic"
                 className="h-45 w-45 rounded-full"
               />

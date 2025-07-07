@@ -1,185 +1,139 @@
 import {
-  FileInput,
   Divider,
   useMantineColorScheme,
 } from "@mantine/core";
-import { IconPencil } from "@tabler/icons-react";
-import { useEffect } from "react";
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
+import { notifications } from "@mantine/notifications";
+import { ImagePlus, Pencil } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getProfile,
-  updateProfile,
+  updateProfileImage,
 } from "../../Services/ProfileService";
 import {
   changeProfile,
   setProfile,
 } from "../../Slices/ProfileSlice";
-import ProfileInfo from "./ProfileInfo";
 import ProfileAbout from "./ProfileAbout";
-import ProfileSkills from "./ProfileSkills";
-import ProfileExperience from "./ProfileExperience";
 import ProfileCertificate from "./ProfileCertificate";
-import { notifications } from "@mantine/notifications";
-import useImage from "../../hooks/useImage";
+import ProfileExperience from "./ProfileExperience";
+import ProfileInfo from "./ProfileInfo";
+import ProfileSkills from "./ProfileSkills";
 
 const Profile = () => {
-  const profile = useSelector(
-    (state: any) => state.profile.selectedProfile
-  );
   const dispatch = useDispatch();
-  const user = useSelector(
-    (state: any) => state.user
-  );
-  const imageSource = useImage(profile?.picture);
+  const user = useSelector((state: any) => state.user);
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getProfile(
-          user.id
-        );
-        dispatch(setProfile(response.data));
-      } catch (error) {
-        console.error(
-          "Error fetching profile:",
-          error
-        );
+        const res = await getProfile(user.id);
+        dispatch(setProfile(res.data));
+        if (res.data.picture) setImagePreview(res.data.picture);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
       }
     };
+
     fetchProfile();
   }, [dispatch, user.id]);
 
-  const handleFileChange = async (image: any) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      console.log('File not recieved');
+      
+      return
+    };
+
+    setImagePreview(URL.createObjectURL(file));
+    setLoading(true);
     try {
-      const img: any = await getBase64(image);
-      const base64Data = img.split(",")[1];
-      const updatedImg = {
-        ...profile,
-        picture: base64Data,
-      };
-      const response = await updateProfile(
-        updatedImg
-      );
-      dispatch(changeProfile(response.data));
+      const formData = new FormData();
+      formData.append("userId", user.id);
+      formData.append("image", file);
+      
+      const res = await updateProfileImage(formData);
+      dispatch(changeProfile(res));
+
       notifications.show({
         title: "Profile Picture Updated",
-        message:
-          "Your profile picture has been updated successfully",
+        message: "Your profile picture was updated successfully!",
         color: "greenTheme.5",
-        icon: true,
       });
-    } catch (error) {
-      console.error(
-        "Failed to update profile image:",
-        error
-      );
+    } catch (err) {
+      console.error("Error updating profile image:", err);
       notifications.show({
-        title: "Error",
-        message:
-          "Failed to update profile picture",
+        title: "Update Failed",
+        message: "Something went wrong while updating your profile picture.",
         color: "red.7",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getBase64 = (file: any) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () =>
-        resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
-     const { colorScheme } = useMantineColorScheme(); 
-      const isDark = colorScheme === "dark";
-
   return (
     <div className="px-4 sm:px-6 md:px-10 my-10 max-w-screen-lg mx-auto">
-      {/* Banner */}
-      <div className=" mt-25">
-        {/* <img
-          src="/Profile/banner.jpg"
-          alt="banner"
-          className="w-full rounded-t-3xl object-cover max-h-[200px] sm:max-h-[280px]"
-        /> */}
-
-        {/* Profile Image + Info */}
-        <div className="flex flex-col md:flex-row gap-6 md:items-end -mt-24 md:mt-0 md:-translate-y-12">
-          {/* Profile Image */}
-          <div className="relative w-32 sm:w-44 h-32 sm:h-44 mx-auto md:mx-0">
-            <div
-              className={`w-full h-full rounded-full overflow-hidden shadow-md ${
-                isDark
-                  ? "bg-[#040611] text-gray-200"
-                  : "bg-gray-200 text-black"
-              } border-[4px]`}
-              border-white
-              bg-white
-            >
-              <img
-                src={imageSource}
-                alt="Profile Avatar"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <FileInput
-              id="img-upload"
-              className="hidden"
-              accept="image/*"
-              onChange={handleFileChange}
+    {/* Profile Section */}
+    <div className="flex flex-col items-center md:flex-row gap-6 md:items-end md:mt-0 ">
+      {/* Profile Image */}
+      <div className="relative w-28 sm:w-36 mt-4 aspect-square mx-auto md:mx-0">
+        <div
+          className={`w-full h-full rounded-full overflow-hidden shadow-md ${
+            isDark ? "bg-[#040611]" : "bg-gray-200"
+          } border-[4px] border-white`}
+        >
+          {imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="Profile"
+              className="w-full h-full object-cover object-center"
             />
-
-            <span
-              id="custom-edit"
-              className="absolute bottom-2 right-2 w-9 h-9 sm:w-10 sm:h-10 bg-green-500 border-[3px] border-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-green-600 transition"
-              onClick={() =>
-                document
-                  .getElementById("img-upload")
-                  ?.click()
-              }
-            >
-              <IconPencil
-                size={20}
-                color="black"
-              />
-            </span>
-          </div>
-
-          {/* Profile Info */}
-          <div className="flex-1">
-            <ProfileInfo />
-          </div>
+          ) : (
+            <ImagePlus className="w-full h-full p-8 text-gray-400" />
+          )}
         </div>
-
-        {/* Other Sections */}
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-        <ProfileAbout />
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-        <ProfileSkills />
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-        <ProfileExperience />
-        <Divider
-          size="xs"
-          className="mt-10"
-        />
-        <ProfileCertificate />
+  
+        {/* Edit Button */}
+        <label
+          htmlFor="profile-img-upload"
+          className="absolute bottom-1.5 right-1.5 w-8 h-8 sm:w-9 sm:h-9 bg-green-500 border-[3px] border-white rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-green-600 transition"
+        >
+          <Pencil size={18} color="black" />
+          <input
+            id="profile-img-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageChange}
+            disabled={loading}
+          />
+        </label>
+      </div>
+  
+      {/* Profile Info */}
+      <div className="flex-1">
+        <ProfileInfo />
       </div>
     </div>
+  
+    {/* Profile Sections */}
+    <Divider size="xs" className="mt-10" />
+    <ProfileAbout />
+    <Divider size="xs" className="mt-10" />
+    <ProfileSkills />
+    <Divider size="xs" className="mt-10" />
+    <ProfileExperience />
+    <Divider size="xs" className="mt-10" />
+    <ProfileCertificate />
+  </div>
+  
   );
 };
 

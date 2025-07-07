@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
 import {
   Divider,
   RangeSlider,
   useMantineColorScheme,
 } from "@mantine/core";
-import MultiInput from "../Find-Jobs/MultiInput";
+import { useEffect, useState } from "react";
 import { searchFields } from "../../data/TalentData";
+import MultiInput from "../Find-Jobs/MultiInput";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -20,7 +20,6 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({
-  onSearch,
   onJobTitleChange,
   onExperienceChange,
   experienceRange,
@@ -28,8 +27,6 @@ const SearchBar = ({
   onLocationChange,
   resetMultiInput,
 }: SearchBarProps) => {
-  const [searchTerm, setSearchTerm] =
-    useState("");
   const [
     resetLocalMultiInput,
     setResetLocalMultiInput,
@@ -47,13 +44,7 @@ const SearchBar = ({
     }
   }, [resetMultiInput]);
 
-  const handleSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    onSearch(value);
-  };
+
 
   const handleMultiInputChange = (
     filters: string[],

@@ -1,4 +1,11 @@
-import { forwardRef, useState } from "react";
+import {
+  Avatar,
+  Group,
+  Menu,
+  Switch,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
 import {
   IconChevronRight,
   IconFileCv,
@@ -7,20 +14,13 @@ import {
   IconMoon,
   IconUserCircle,
 } from "@tabler/icons-react";
-import {
-  Group,
-  Avatar,
-  Text,
-  Menu,
-  UnstyledButton,
-  Switch,
-} from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { forwardRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { removeUser } from "../../Slices/UserSlice";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../../App/Store";
 import { removeToken } from "../../Slices/JWTSlice";
 import { toggleTheme } from "../../Slices/ThemeSlice";
-import { RootState } from "../../App/Store";
+import { removeUser } from "../../Slices/UserSlice";
 
 interface UserProps {
   image?: string;
@@ -81,7 +81,6 @@ const ProfileMenu = ({
   name,
   email,
 }: UserProps) => {
-  const [checked, setChecked] = useState(false);
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();

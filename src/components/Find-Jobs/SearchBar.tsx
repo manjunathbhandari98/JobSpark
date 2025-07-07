@@ -1,16 +1,11 @@
+import { Divider, RangeSlider } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { dropdownData } from "../../data/JobsData";
 import MultiInput from "./MultiInput";
-import {
-  Divider,
-  RangeSlider,
-} from "@mantine/core";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
-  onSalaryChange: (
-    range: [number, number]
-  ) => void;
+  onSalaryChange: (range: [number, number]) => void;
   salaryRange: [number, number];
   onJobTitleChange: (filters: string[]) => void;
   onLocationChange: (filters: string[]) => void;
@@ -19,7 +14,6 @@ interface SearchBarProps {
 }
 
 const SearchBar = ({
-  onSearch,
   onSalaryChange,
   salaryRange,
   onJobTitleChange,
@@ -27,46 +21,25 @@ const SearchBar = ({
   onExperienceChange,
   resetMultiInput,
 }: SearchBarProps) => {
-  const [searchTerm, setSearchTerm] =
-    useState("");
-  const [
-    resetLocalMultiInput,
-    setResetLocalMultiInput,
-  ] = useState(false);
+  const [resetFlag, setResetFlag] = useState(false);
 
+  // Trigger reset for MultiInput when parent says so
   useEffect(() => {
     if (resetMultiInput) {
-      setResetLocalMultiInput(true);
-      setTimeout(
-        () => setResetLocalMultiInput(false),
-        0
-      );
+      setResetFlag(true);
+      setTimeout(() => setResetFlag(false), 0);
     }
   }, [resetMultiInput]);
 
-  useEffect(() => {
-    setResetLocalMultiInput(false);
-  }, [resetLocalMultiInput]);
 
-  const handleSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    onSearch(value);
-  };
+  const handleMultiInputChange = (filters: string[], title: string) => {
+    const handlers: Record<string, (filters: string[]) => void> = {
+      "Job Title": onJobTitleChange,
+      "Location": onLocationChange,
+      "Experience": onExperienceChange,
+    };
 
-  const handleMultiInputChange = (
-    filters: string[],
-    title: string
-  ) => {
-    if (title === "Job Title") {
-      onJobTitleChange(filters);
-    } else if (title === "Location") {
-      onLocationChange(filters);
-    } else if (title === "Experience") {
-      onExperienceChange(filters);
-    }
+    handlers[title]?.(filters);
   };
 
   return (
@@ -78,40 +51,25 @@ const SearchBar = ({
             key={index}
             className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-1/2 lg:w-1/5"
           >
-            <div className=" w-full">
-              <MultiInput
-                {...option}
-                onChange={(filters) =>
-                  handleMultiInputChange(
-                    filters,
-                    option.title
-                  )
-                }
-                resetValue={resetLocalMultiInput}
-              />
-            </div>
+            <MultiInput
+              {...option}
+              onChange={(filters) => handleMultiInputChange(filters, option.title)}
+              resetValue={resetFlag}
+            />
             <div className="hidden sm:block">
-              <Divider
-                size="xs"
-                orientation="vertical"
-              />
+              <Divider size="xs" orientation="vertical" />
             </div>
           </div>
         ))}
+
         <div className="w-full sm:w-1/2 lg:w-1/5 px-2 [&_.mantine-Slider-label]:translate-y-10">
           <div className="flex justify-between text-sm py-2">
             <div>Salary</div>
             <div>
-              ₹{salaryRange[0]} LPA - ₹
-              {salaryRange[1]} LPA
+              ₹{salaryRange[0]} LPA - ₹{salaryRange[1]} LPA
             </div>
           </div>
-          <RangeSlider
-            size="sm"
-            color="green"
-            value={salaryRange}
-            onChange={onSalaryChange}
-          />
+          <RangeSlider size="sm" color="green" value={salaryRange} onChange={onSalaryChange} />
         </div>
       </div>
       <Divider size="xs" />

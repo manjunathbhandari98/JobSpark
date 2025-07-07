@@ -1,30 +1,29 @@
 import {
-  Bookmark,
-  Calendar,
-  Dot,
-  MapPin,
-} from "lucide-react";
-import {
   Button,
   Divider,
   Modal,
   useMantineColorScheme,
 } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
-import { useDisclosure } from "@mantine/hooks";
 import {
   DateInput,
   TimeInput,
 } from "@mantine/dates";
-import { useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
 import dayjs from "dayjs";
-import useImage from "../../hooks/useImage";
+import {
+  Bookmark,
+  Calendar,
+  Dot,
+  MapPin,
+} from "lucide-react";
+import { useState } from "react";
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
-import { editJob } from "../../Slices/JobSlice";
+import { useNavigate } from "react-router-dom";
 import { updateJob } from "../../Services/JobService";
+import { editJob } from "../../Slices/JobSlice";
 
 interface TalentCardProps {
   id?: number;
@@ -53,7 +52,7 @@ interface TalentCardProps {
 }
 
 const TalentCard = (data: TalentCardProps) => {
-  const imageSource = useImage(data?.picture);
+  const imageSource = data?.picture;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selectedJob = useSelector(
@@ -185,7 +184,7 @@ const { colorScheme } = useMantineColorScheme();
               <img
                 src={imageSource}
                 alt="profile"
-                className="h-15 rounded-full"
+                className="h-15 w-15 rounded-full"
               />
             </div>
             <div>
