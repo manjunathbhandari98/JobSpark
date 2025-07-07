@@ -1,3 +1,4 @@
+import { useMantineColorScheme } from "@mantine/core";
 import {
   Briefcase,
   Sparkles,
@@ -7,7 +8,6 @@ import {
   forwardRef,
   Ref,
 } from "react";
-import { useMantineColorScheme } from "@mantine/core";
 
 interface JobSparkLogoProps {
   size?:
