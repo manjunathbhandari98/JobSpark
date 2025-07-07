@@ -2,7 +2,7 @@ import {
   Briefcase,
   Sparkles,
 } from "lucide-react";
-import React, {
+import {
   FC,
   forwardRef,
   Ref,
